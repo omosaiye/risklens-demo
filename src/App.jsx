@@ -22,7 +22,12 @@ import {
   FileAudio,
   Sparkles,
   Download,
-  Landmark
+  Landmark,
+  CalendarDays,
+  Users,
+  Scale,
+  Settings,
+  Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -150,13 +155,23 @@ export default function SecretariatComet() {
       
       {/* 1. Slim Left Navigation (Perplexity Style) */}
       <nav className="w-16 md:w-20 bg-[#F9FAFB] border-r border-slate-200 flex flex-col items-center py-6 gap-6 fixed h-full z-50">
-        <div className="w-10 h-10 rounded-lg bg-[#064E3B] flex items-center justify-center shadow-md mb-4" title="SeeBess Bank Sovereign Vault">
-          <Landmark className="text-[#D97706]" size={24} />
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#064E3B] to-[#042F24] flex items-center justify-center shadow-lg mb-4 ring-1 ring-[#D97706]/50" title="SeeBess Bank Sovereign Vault">
+          <Landmark className="text-[#D97706]" size={26} />
         </div>
-        <NavItem icon={Sparkles} active />
+        
+        <NavItem icon={CalendarDays} active />
+        
         <NavItem icon={Search} />
         <NavItem icon={Database} />
-        <div className="mt-auto flex flex-col gap-4">
+        
+        <div className="w-8 h-px bg-slate-200 my-1"></div>
+        
+        <NavItem icon={Users} />
+        <NavItem icon={Scale} />
+        <NavItem icon={Globe} />
+
+        <div className="mt-auto flex flex-col gap-4 items-center">
+          <NavItem icon={Settings} />
           <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">JS</div>
         </div>
       </nav>
@@ -169,9 +184,12 @@ export default function SecretariatComet() {
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
               <h1 className="font-serif font-bold text-xl text-[#064E3B] tracking-tight">SeeBess Bank</h1>
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Secretariat Intelligent Console</span>
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Banking with Intelligence</span>
             </div>
-            <span className="ml-2 px-2 py-0.5 bg-[#D97706]/10 text-[#D97706] text-[10px] font-bold uppercase rounded tracking-wider border border-[#D97706]/20">Confidential</span>
+            <span className="ml-2 px-2 py-0.5 bg-[#D97706]/10 text-[#D97706] text-[10px] font-bold uppercase rounded tracking-wider border border-[#D97706]/20 flex items-center gap-1">
+              <Shield size={10} />
+              Confidential
+            </span>
           </div>
           <div className="flex items-center gap-3">
              <button className="text-slate-500 hover:text-[#064E3B] transition-colors"><Share size={18} /></button>
