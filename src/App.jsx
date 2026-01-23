@@ -258,7 +258,7 @@ export default function SecretariatComet() {
             
             {/* Auto-Prompt Suggestion Overlay */}
             {suggestedPrompt && !query && (
-              <div className="absolute top-4 left-4 right-16 pointer-events-none text-slate-400 truncate italic">
+              <div className="absolute top-4 left-4 right-16 pointer-events-none text-slate-400 italic">
                 {suggestedPrompt}
               </div>
             )}
@@ -267,7 +267,7 @@ export default function SecretariatComet() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={suggestedPrompt ? "" : "Ask a follow up question..."}
-              className="w-full pl-4 pr-14 py-4 bg-transparent outline-none text-base resize-none max-h-40 min-h-[60px] text-slate-800 placeholder:text-slate-400"
+              className="w-full pl-4 pr-14 py-4 bg-transparent outline-none text-base resize-none max-h-40 min-h-[84px] text-slate-800 placeholder:text-slate-400"
               onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }}}
             />
             
