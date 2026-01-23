@@ -478,4 +478,4 @@ The request complies with all CBN Prudential Guidelines. The exposure represents
 2. **Key Person Risk:** Operations are heavily centralized around the Managing Director.
 
 **Recommendation**
-**APPROVE** subject to the execution of an FX Forward Contract 
+**APPROVE** subject to the execution of an FX Forward Contract for Q3 2026 imports.`;
