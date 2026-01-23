@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Intelligence: A Strategic Framework for West Africa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'lagos-green': '#064E3B',
+                        'lagos-gold': '#D97706',
+                        'lagos-cream': '#FDFCF5',
+                        'lagos-slate': '#1E293B',
+                    },
+                    fontFamily: {
+                        'serif': ['"Playfair Display"', 'serif'],
+                        'sans': ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Chart Container Styles to meet strict requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #064E3B;
+            border-radius: 4px;
+        }
+
+        /* Flowchart styling without SVG */
+        .flow-node {
+            transition: all 0.3s ease;
+        }
+        .flow-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .arrow-right {
+            display: inline-block;
+            width: 0; 
+            height: 0; 
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid #D97706;
+            margin-left: 10px;
+        }
+        .arrow-down {
+            display: inline-block;
+            width: 0; 
+            height: 0; 
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #D97706;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="bg-lagos-cream text-lagos-slate font-sans selection:bg-lagos-gold selection:text-white">
+
+    <!-- Chosen Palette: Lagos Future (Deep Emerald #064E3B, Muted Gold #D97706, Cream #FDFCF5, Slate #1E293B) -->
+
+    <!-- Application Structure Plan: 
+         1. Hero Section: Context setting (Jan 2026, Nigeria).
+         2. The Paradox (Dashboard 1): Radar chart showing the gap between Business Maturity and Infrastructure.
+         3. The Friction (Dashboard 2): Doughnut chart showing risks (Shadow AI, etc.).
+         4. The Pivot (Concept): Cards contrasting "IT Mindset" vs "Capability Mindset".
+         5. The Reality (Dashboard 3): Bar chart comparing Power/Cost models (Engineering constraints).
+         6. The Solution (Interactive Flow): CSS-based diagram of the SAIV architecture with hover details.
+         7. The Outcome (Dashboard 4): Line/Bar charts showing adoption and innovation dividends.
+         8. Conclusion: Final strategic summary.
+         
+         Structure chosen to guide the executive from the "Why" (Paradox/Risk) to the "How" (Architecture) to the "Value" (Outcome).
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Radar Chart: Compare 5 dimensions of the Nigerian market (Maturity vs Infrastructure). Best for multivariate gap analysis.
+         2. Doughnut Chart: Breakdown of 'Pain Points'. Best for showing composition of risk.
+         3. Grouped Bar Chart: Compare 'Cloud' vs 'On-Prem' vs 'SAIV' across Cost, Power, and Security. Best for categorical comparison.
+         4. HTML/CSS Flowchart: Visualize data flow in SAIV (Privacy Shield). chosen over SVG for constraints.
+         5. Line Chart: Show 'Innovation Dividend' over time (compounding value). Best for trends.
+         6. Horizontal Bar: Compare 'Generic AI' vs 'Gem' adoption. Best for ranking.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- Header / Hero -->
+        <header class="mb-12 border-b-4 border-lagos-gold pb-6">
+            <div class="flex flex-col md:flex-row justify-between items-end">
+                <div>
+                    <p class="text-lagos-gold font-bold tracking-widest text-sm uppercase mb-2">Strategy Whitepaper • January 2026</p>
+                    <h1 class="text-4xl md:text-5xl font-serif font-bold text-lagos-green leading-tight">Sovereign Intelligence</h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mt-2 font-light">A Strategic Framework for Enterprise AI in West Africa</p>
+                </div>
+                <div class="mt-4 md:mt-0 text-right">
+                    <div class="inline-block bg-lagos-green text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                        Region: Nigeria
+                    </div>
+                </div>
+            </div>
+            <p class="mt-6 text-lg text-gray-700 max-w-4xl leading-relaxed">
+                Navigating the intersection of high business maturity and infrastructure constraints. This framework proposes the <strong>Secure AI Vault (SAIV)</strong> to transform Generative AI from a novelty into a critical dynamic capability.
+            </p>
+        </header>
+
+        <!-- Section 1: The Nigerian Paradox -->
+        <section class="mb-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-serif font-bold text-lagos-green mb-4">The Nigerian Paradox</h2>
+                    <p class="mb-4 text-gray-700">
+                        Nigeria presents a unique contradiction. Sectors like FinTech and Energy operate at global standards of governance (CBN, NDPA), creating high demand for advanced analytics. However, the "physics" of AI—power, cooling, and connectivity—lag behind.
+                    </p>
+                    <p class="mb-6 text-gray-700">
+                        Blind adoption of Silicon Valley models creates unacceptable latency and sovereignty risks. We must visualize this gap to address it.
+                    </p>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-lagos-gold">
+                        <h4 class="font-bold text-lagos-green mb-2">Key Insight</h4>
+                        <p class="text-sm text-gray-600">
+                            The gap between <strong>Regulatory Demand</strong> and <strong>Infrastructure Readiness</strong> is the primary failure mode for standard AI deployments in Lagos.
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-bold text-gray-500 mb-4 text-center uppercase tracking-wide">Market Readiness Assessment</h3>
+                    <div class="chart-container">
+                        <canvas id="paradoxChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Pain Points -->
+        <section class="mb-16 bg-white rounded-2xl shadow-xl p-8 lg:p-12 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-2 h-full bg-lagos-green"></div>
+            <div class="mb-8">
+                <h2 class="text-3xl font-serif font-bold text-lagos-green mb-4">The Cost of Inaction</h2>
+                <p class="text-gray-700 max-w-3xl">
+                    Without a coherent strategy, the environment breeds "Shadow AI" and data leakage. Innovation occurs in uneven pockets ("Jagged Adoption"), and institutional wisdom remains trapped in silos.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div class="chart-container">
+                    <canvas id="painPointsChart"></canvas>
+                </div>
+                <div class="space-y-4">
+                    <div class="group p-4 rounded-lg hover:bg-lagos-cream transition-colors border border-transparent hover:border-lagos-gold cursor-default">
+                        <h4 class="font-bold text-lagos-green flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span> Shadow AI & Data Leakage (40%)
+                        </h4>
+                        <p class="text-sm text-gray-600 mt-1">Employees pasting proprietary financial models and contracts into public US-hosted LLMs, breaching NDPA.</p>
+                    </div>
+                    <div class="group p-4 rounded-lg hover:bg-lagos-cream transition-colors border border-transparent hover:border-lagos-gold cursor-default">
+                        <h4 class="font-bold text-lagos-green flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-orange-400 mr-2"></span> Jagged Adoption (25%)
+                        </h4>
+                        <p class="text-sm text-gray-600 mt-1">Advanced tools used in HQ while branches rely on manual processes, creating governance blind spots.</p>
+                    </div>
+                    <div class="group p-4 rounded-lg hover:bg-lagos-cream transition-colors border border-transparent hover:border-lagos-gold cursor-default">
+                        <h4 class="font-bold text-lagos-green flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-blue-400 mr-2"></span> Innovation Silos (20%)
+                        </h4>
+                        <p class="text-sm text-gray-600 mt-1">Institutional wisdom trapped in senior personnel minds. Capital leaves when they retire.</p>
+                    </div>
+                    <div class="group p-4 rounded-lg hover:bg-lagos-cream transition-colors border border-transparent hover:border-lagos-gold cursor-default">
+                        <h4 class="font-bold text-lagos-green flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-gray-400 mr-2"></span> Missed Dividend (15%)
+                        </h4>
+                        <p class="text-sm text-gray-600 mt-1">Failure to capture and reuse successful prompts/workflows for compounding value.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The Strategic Pivot (Philosophy) -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-serif font-bold text-lagos-green mb-8 text-center">The Strategic Pivot</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Old Way -->
+                <div class="bg-gray-100 p-8 rounded-xl border-2 border-dashed border-gray-300 opacity-75">
+                    <div class="uppercase text-xs font-bold text-gray-500 mb-2">The Old Way</div>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-4">AI as "IT"</h3>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start"><span class="mr-2">❌</span> Cost center focus (Licenses, Servers)</li>
+                        <li class="flex items-start"><span class="mr-2">❌</span> "Automation" that threatens jobs</li>
+                        <li class="flex items-start"><span class="mr-2">❌</span> Generic deployment</li>
+                    </ul>
+                </div>
+                <!-- New Way -->
+                <div class="bg-lagos-green text-white p-8 rounded-xl shadow-xl transform md:-translate-y-2">
+                    <div class="uppercase text-xs font-bold text-lagos-gold mb-2">The New Way</div>
+                    <h3 class="text-2xl font-bold mb-4">AI as "Dynamic Capability"</h3>
+                    <ul class="space-y-3 text-gray-100">
+                        <li class="flex items-start"><span class="mr-2">✅</span> Institutionalizing Wisdom</li>
+                        <li class="flex items-start"><span class="mr-2">✅</span> "Augmentation" that increases capacity</li>
+                        <li class="flex items-start"><span class="mr-2">✅</span> Reconfiguring competencies for speed</li>
+                    </ul>
+                    <div class="mt-6 pt-6 border-t border-green-800 text-sm italic text-green-200">
+                        "The goal is not to deploy AI. The goal is to capture the logic of the Credit Committee."
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Engineering for Reality -->
+        <section class="mb-16">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+                <div class="md:w-1/2 pr-4">
+                    <h2 class="text-3xl font-serif font-bold text-lagos-green mb-4">Engineering for Reality</h2>
+                    <p class="text-gray-700 mb-4">
+                        A tailored solution must address the specific "Physics and Economics" of the region. We analyzed three deployment models against the harsh realities of Lagos: Power (Diesel/Inverter), Geopolitics (Chip Export Controls), and Token Economics (FX Volatility).
+                    </p>
+                    <p class="text-gray-700 font-bold">
+                        The SAIV Hybrid model optimizes for low OPEX and high Security.
+                    </p>
+                </div>
+                <!-- Interactive Toggles for Chart Data (Simulated via JS updates) -->
+                <div class="md:w-1/2 mt-4 md:mt-0 flex justify-end space-x-2">
+                    <button onclick="updateConstraintChart('power')" class="px-4 py-2 bg-lagos-green text-white rounded-md text-sm font-medium hover:bg-green-800 transition">Power Impact</button>
+                    <button onclick="updateConstraintChart('cost')" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition">Cost Risk (FX)</button>
+                    <button onclick="updateConstraintChart('security')" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition">Security Score</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="chart-container">
+                    <canvas id="constraintsChart"></canvas>
+                </div>
+                <div id="chart-context" class="mt-4 text-center text-sm text-gray-500 italic">
+                    Displaying: Estimated Power Consumption (kW) per rack. High consumption correlates with massive diesel OPEX.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: The Solution (SAIV Architecture) -->
+        <section class="mb-16">
+            <div class="bg-lagos-slate rounded-2xl p-8 lg:p-12 text-white shadow-2xl">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-serif font-bold text-lagos-gold mb-4">The Solution: Secure AI Vault (SAIV)</h2>
+                    <p class="text-gray-300 max-w-2xl mx-auto">
+                        A "Hybrid Sovereign" architecture designed to decouple <strong>Reasoning</strong> from <strong>Memory</strong>. It satisfies NDPA requirements while leveraging global intelligence.
+                    </p>
+                </div>
+
+                <!-- CSS Grid/Flex Architecture Diagram -->
+                <div class="flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-8 relative">
+                    
+                    <!-- Step 1: User -->
+                    <div class="flow-node bg-white text-lagos-slate p-6 rounded-lg w-full lg:w-64 text-center border-l-4 border-lagos-green z-10">
+                        <div class="text-4xl mb-3">👤</div>
+                        <h4 class="font-bold mb-2">1. Enterprise User</h4>
+                        <p class="text-xs text-gray-600">Asks question containing sensitive PII (BVN, NIN).</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="hidden lg:block arrow-right"></div>
+                    <div class="lg:hidden arrow-down"></div>
+
+                    <!-- Step 2: Privacy Shield -->
+                    <div class="flow-node bg-lagos-green text-white p-6 rounded-lg w-full lg:w-64 text-center border border-lagos-gold shadow-[0_0_20px_rgba(217,119,6,0.3)] z-10 relative">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-lagos-gold text-lagos-slate text-[10px] font-bold px-2 py-0.5 rounded">LAGOS GATEWAY</div>
+                        <div class="text-4xl mb-3">🛡️</div>
+                        <h4 class="font-bold mb-2">2. Privacy Shield</h4>
+                        <p class="text-xs text-green-100">Intercepts request. Replaces PII with anonymous tokens.</p>
+                        <div class="mt-2 text-[10px] font-mono bg-green-900 rounded p-1">BVN: 2223 -> [TOKEN_1]</div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="hidden lg:block arrow-right"></div>
+                    <div class="lg:hidden arrow-down"></div>
+
+                    <!-- Step 3: Cloud -->
+                    <div class="flow-node bg-blue-50 text-blue-900 p-6 rounded-lg w-full lg:w-64 text-center border-2 border-dashed border-blue-300 z-10">
+                        <div class="text-4xl mb-3">☁️</div>
+                        <h4 class="font-bold mb-2">3. Cloud Reasoning</h4>
+                        <p class="text-xs text-blue-800">Frontier Model (GPT-4o) processes <i>sanitized</i> logic only.</p>
+                    </div>
+
+                    <!-- Arrow Back (Visualized as loop logic in text for simplicity in flow) -->
+                    <div class="hidden lg:block arrow-right"></div>
+                    <div class="lg:hidden arrow-down"></div>
+
+                    <!-- Step 4: Rehydration -->
+                    <div class="flow-node bg-lagos-green text-white p-6 rounded-lg w-full lg:w-64 text-center border border-lagos-gold z-10 relative">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-lagos-gold text-lagos-slate text-[10px] font-bold px-2 py-0.5 rounded">LAGOS GATEWAY</div>
+                        <div class="text-4xl mb-3">🔄</div>
+                        <h4 class="font-bold mb-2">4. Re-hydration</h4>
+                        <p class="text-xs text-green-100">Answer returned. Tokens swapped back for original data.</p>
+                    </div>
+                </div>
+
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div class="p-4 bg-white/10 rounded-lg">
+                        <div class="text-lagos-gold font-bold mb-1">Security</div>
+                        <div class="text-xs text-gray-300">100% NDPA Compliant</div>
+                    </div>
+                    <div class="p-4 bg-white/10 rounded-lg">
+                        <div class="text-lagos-gold font-bold mb-1">Cost</div>
+                        <div class="text-xs text-gray-300">Cloud Bursting without CAPEX</div>
+                    </div>
+                    <div class="p-4 bg-white/10 rounded-lg">
+                        <div class="text-lagos-gold font-bold mb-1">Innovation</div>
+                        <div class="text-xs text-gray-300">Instant "Gem" Deployment</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Factors of Success & Innovation Dividend -->
+        <section class="mb-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                
+                <!-- Adoption Chart -->
+                <div>
+                    <h2 class="text-2xl font-serif font-bold text-lagos-green mb-4">Adoption: Models vs. Gems</h2>
+                    <p class="text-gray-700 mb-6 text-sm">
+                        Success pivots on packaging. Users ignore generic "Models" but embrace job-specific "Gems" (e.g., Credit Analyst, Audit Bot).
+                    </p>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="adoptionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Innovation Dividend Chart -->
+                <div>
+                    <h2 class="text-2xl font-serif font-bold text-lagos-green mb-4">The Innovation Dividend</h2>
+                    <p class="text-gray-700 mb-6 text-sm">
+                        Capturing wisdom creates a compounding effect. Every solved problem creates a reusable asset, accelerating future innovation compared to linear IT growth.
+                    </p>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="dividendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer / Conclusion -->
+        <footer class="bg-lagos-slate text-white rounded-t-3xl p-12 text-center">
+            <h2 class="text-3xl font-serif font-bold text-lagos-gold mb-6">Conclusion</h2>
+            <p class="max-w-3xl mx-auto text-lg leading-relaxed text-gray-300 mb-8">
+                The Secure AI Vault represents a pragmatic, sovereign path forward. It acknowledges the constraints of the Nigerian environment while refusing to compromise on the transformative power of AI. By capturing institutional wisdom and securing it behind a sovereign gateway, the enterprise evolves into a self-reinforcing engine of innovation.
+            </p>
+            <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+                <p>&copy; 2026 Sovereign AI Strategy.</p>
+                <p>Designed for Nigerian Enterprise Resilience.</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Common Chart Config
+        Chart.defaults.font.family = '"Inter", sans-serif';
+        Chart.defaults.color = '#4B5563';
+
+        // 1. Paradox Radar Chart
+        const ctxParadox = document.getElementById('paradoxChart').getContext('2d');
+        new Chart(ctxParadox, {
+            type: 'radar',
+            data: {
+                labels: ['Regulatory Maturity', 'Transaction Vol.', 'Power Stability', 'Connectivity', 'Chip Access'],
+                datasets: [{
+                    label: 'Market Reality',
+                    data: [9, 9, 3, 4, 5],
+                    backgroundColor: 'rgba(6, 78, 59, 0.2)',
+                    borderColor: '#064E3B',
+                    pointBackgroundColor: '#D97706',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#D97706'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#e5e7eb' },
+                        grid: { color: '#e5e7eb' },
+                        pointLabels: {
+                            font: { size: 11, weight: '600' },
+                            color: '#1E293B'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 10
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => items[0].label
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Pain Points Doughnut Chart
+        const ctxPain = document.getElementById('painPointsChart').getContext('2d');
+        new Chart(ctxPain, {
+            type: 'doughnut',
+            data: {
+                labels: ['Shadow AI & Leakage', 'Jagged Adoption', 'Innovation Silos', 'Missed Dividend'],
+                datasets: [{
+                    data: [40, 25, 20, 15],
+                    backgroundColor: ['#ef4444', '#fb923c', '#60a5fa', '#9ca3af'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false }, // Using custom legend in HTML
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => items[0].label
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Constraints Bar Chart (Interactive Data)
+        const constraintData = {
+            power: {
+                label: 'Power Consumption (kW)',
+                data: [12, 1, 15], // On-Prem, SAIV, Pure Cloud (DC)
+                bg: '#ef4444',
+                desc: 'Displaying: Estimated Power Consumption (kW) per rack. High consumption correlates with massive diesel OPEX.'
+            },
+            cost: {
+                label: 'FX Volatility Risk (1-10)',
+                data: [3, 2, 9], // On-Prem, SAIV, Pure Cloud
+                bg: '#D97706',
+                desc: 'Displaying: Risk exposure to Naira volatility. Pure Cloud relies 100% on USD tokens.'
+            },
+            security: {
+                label: 'Security Score (1-10)',
+                data: [9, 10, 2], // On-Prem, SAIV, Pure Cloud
+                bg: '#064E3B',
+                desc: 'Displaying: Data Sovereignty Score. SAIV and On-Prem ensure data stays in Nigeria.'
+            }
+        };
+
+        const ctxConstraints = document.getElementById('constraintsChart').getContext('2d');
+        const constraintsChart = new Chart(ctxConstraints, {
+            type: 'bar',
+            data: {
+                labels: ['On-Premise GPU', 'SAIV Hybrid', 'Pure Public Cloud'],
+                datasets: [{
+                    label: 'Power Consumption (kW)',
+                    data: constraintData.power.data,
+                    backgroundColor: constraintData.power.bg,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => items[0].label
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateConstraintChart(type) {
+            const config = constraintData[type];
+            constraintsChart.data.datasets[0].label = config.label;
+            constraintsChart.data.datasets[0].data = config.data;
+            constraintsChart.data.datasets[0].backgroundColor = config.bg;
+            constraintsChart.update();
+            document.getElementById('chart-context').innerText = config.desc;
+        }
+
+        // 4. Adoption Horizontal Bar
+        const ctxAdoption = document.getElementById('adoptionChart').getContext('2d');
+        new Chart(ctxAdoption, {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: ['Generic "GPT-4" Tool', 'Credit Analyst "Gem"', 'Audit Bot "Gem"'],
+                datasets: [{
+                    label: 'Employee Adoption Rate (%)',
+                    data: [15, 85, 78],
+                    backgroundColor: ['#9ca3af', '#064E3B', '#064E3B'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: { x: { max: 100 } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => items[0].label
+                        }
+                    }
+                }
+            }
+        });
+
+        // 5. Innovation Dividend Line Chart
+        const ctxDividend = document.getElementById('dividendChart').getContext('2d');
+        new Chart(ctxDividend, {
+            type: 'line',
+            data: {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Year 2'],
+                datasets: [
+                    {
+                        label: 'SAIV (Compounding)',
+                        data: [10, 25, 50, 90, 160],
+                        borderColor: '#D97706',
+                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Traditional IT (Linear)',
+                        data: [10, 15, 20, 25, 30],
+                        borderColor: '#9ca3af',
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => items[0].label
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

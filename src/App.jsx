@@ -1,462 +1,481 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Shield, 
+  Paperclip, 
+  ArrowUp, 
   FileText, 
-  Upload, 
-  CheckCircle, 
-  AlertTriangle, 
-  Download, 
-  Printer, 
-  Share2, 
-  Send, 
-  Search, 
+  X, 
+  ChevronDown, 
+  ChevronRight, 
+  CheckCircle2, 
   Lock, 
-  Server, 
-  RefreshCw,
-  Cpu,
+  Database,
+  Search,
+  MoreHorizontal,
+  Share,
+  Printer,
   User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- Theme Constants ---
-const COLORS = {
-  bg: 'bg-[#FDFCF5]',     // Cream
-  sidebar: 'bg-[#1E293B]', // Slate
-  primary: 'bg-[#064E3B]', // Deep Emerald
-  primaryText: 'text-[#064E3B]',
-  accent: 'text-[#D97706]', // Muted Gold
-  accentBorder: 'border-[#D97706]',
-  lightGray: 'bg-[#F8FAFC]'
+// --- Design Tokens ---
+const THEME = {
+  bg: 'bg-[#F9FAFB]',       // Clean Ultra-Light Gray (Paper-like)
+  card: 'bg-white',
+  textMain: 'text-[#111827]',
+  textMuted: 'text-[#6B7280]',
+  accent: 'text-[#064E3B]', // Deep Emerald (Sovereign)
+  gold: 'text-[#D97706]',   // Gold Highlights
+  border: 'border-[#E5E7EB]',
 };
 
-// --- Mock Data ---
-const MOCK_RAW_DATA = `Borrower: Zenith Construction Ltd
-RC Number: 1492201
-Director: Emeka Okafor (BVN: 22190983211)
-Request: N250,000,000 Term Loan
-Collateral: Warehouse at Plot 4, Agbara Estate`;
+// --- Mock Data: Secure Vault Files ---
+const SECURE_DRIVE_FILES = [
+  { id: 1, name: 'Zenith_Construction_Fin_2025.pdf', type: 'Financials', date: 'Jan 12, 2026' },
+  { id: 2, name: 'CRC_Credit_Bureau_Report.pdf', type: 'Bureau', date: 'Jan 14, 2026' },
+  { id: 3, name: 'Lagos_Land_Registry_Search.pdf', type: 'Legal', date: 'Jan 10, 2026' },
+  { id: 4, name: 'CBN_Prudential_Guidelines_2025.pdf', type: 'Regulation', date: 'Dec 01, 2025' },
+  { id: 5, name: 'Global_Oil_Price_Forecast_Q1.pdf', type: 'Market Data', date: 'Jan 02, 2026' },
+];
 
-const MOCK_SANITIZED_DATA = `Borrower: [ORG_1]
-RC Number: [REDACTED_ID_1]
-Director: [PERSON_A] (BVN: [REDACTED_ID_2])
-Request: [AMT_1] Term Loan
-Collateral: Warehouse at [LOC_1]`;
-
-const MOCK_REASONING = `> Initiating Risk Assessment Protocol...
-> Analyzing Debt Service Coverage Ratio (DSCR)...
-> DSCR calculated at 1.45x (Pass > 1.25x).
-> Checking CBN Single Obligor Limit...
-> Exposure is within 15% shareholder funds cap.
-> Analyzing [LOC_1] collateral liquidity...
-> Applied "Industrial Zone" premium to valuation.
-> Flagging potential FX exposure on raw material imports.
-> Generating recommendation...`;
-
-// --- Components ---
-
-const Sidebar = ({ activeGem }) => (
-  <div className={`w-[250px] flex-shrink-0 ${COLORS.sidebar} text-white flex flex-col h-screen border-r border-slate-700`}>
-    <div className="p-6 border-b border-slate-700">
-      <div className="flex items-center gap-2">
-        <Shield className="text-[#D97706]" size={24} />
-        <h1 className="font-serif font-bold text-lg tracking-wide">SAIV Vault</h1>
-      </div>
-      <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest">Sovereign AI</p>
-    </div>
-
-    <div className="flex-1 overflow-y-auto py-6">
-      <div className="px-4 mb-2 text-xs font-semibold text-slate-500 uppercase">Business Gems</div>
-      <div className="space-y-1">
-        <GemItem icon={FileText} label="Credit RiskLens" active={true} />
-        <GemItem icon={Shield} label="Legal Guardian" />
-        <GemItem icon={Search} label="Audit Master" />
-      </div>
-    </div>
-
-    <div className="p-4 border-t border-slate-700">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center">
-          <User size={16} />
-        </div>
-        <div>
-          <div className="text-sm font-medium">Exec. User</div>
-          <div className="text-xs text-slate-400">Chief Risk Office</div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const GemItem = ({ icon: Icon, label, active }) => (
-  <div className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${active ? 'bg-[#064E3B]/50 border-r-4 border-[#D97706] text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
-    <Icon size={18} className={active ? 'text-[#D97706]' : ''} />
-    <span className="text-sm font-medium">{label}</span>
-  </div>
-);
-
-const UploadWidget = ({ onAnalyze }) => (
-  <div className="max-w-2xl mx-auto mt-20 text-center">
-    <div className="mb-8">
-      <h2 className="font-serif text-3xl font-bold text-[#064E3B] mb-2">New Credit Assessment</h2>
-      <p className="text-slate-500">Upload the borrower's application pack to begin the Sovereign Analysis.</p>
-    </div>
-
-    <div className="border-2 border-dashed border-slate-300 rounded-xl p-12 bg-white/50 hover:bg-white transition-all cursor-pointer group">
-      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-        <Upload className="text-[#064E3B]" size={32} />
-      </div>
-      <h3 className="text-lg font-semibold text-slate-700">Drag & Drop Documents Here</h3>
-      <p className="text-sm text-slate-400 mt-2">Required: Financial Stmts, Bureau Report, Application Letter</p>
-      
-      <div className="mt-8 flex justify-center gap-4">
-        <FileBadge label="Zenith_Fin_2025.pdf" />
-        <FileBadge label="CRC_Report_Q4.pdf" />
-        <FileBadge label="App_Letter.pdf" />
-      </div>
-    </div>
-
-    <button 
-      onClick={onAnalyze}
-      className="mt-8 bg-[#064E3B] text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:bg-[#053d2e] transition-colors flex items-center gap-2 mx-auto"
-    >
-      <Shield size={18} />
-      Analyze Application
-    </button>
-  </div>
-);
-
-const FileBadge = ({ label }) => (
-  <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded text-xs font-medium text-slate-600 border border-slate-200">
-    <FileText size={12} />
-    {label}
-  </div>
-);
-
-const LoadingState = ({ step }) => (
-  <div className="h-full flex flex-col items-center justify-center">
-    <div className="w-24 h-24 relative mb-8">
-      <motion.div 
-        className="absolute inset-0 border-4 border-slate-200 rounded-full"
-      />
-      <motion.div 
-        className="absolute inset-0 border-4 border-[#D97706] rounded-full border-t-transparent"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-      />
-      <div className="absolute inset-0 flex items-center justify-center">
-        {step === 'sanitizing' && <Lock className="text-[#064E3B]" size={32} />}
-        {step === 'reasoning' && <Cpu className="text-[#064E3B]" size={32} />}
-        {step === 'rehydrating' && <RefreshCw className="text-[#064E3B]" size={32} />}
-      </div>
-    </div>
-    
-    <h3 className="text-xl font-serif font-bold text-[#064E3B] mb-2">
-      {step === 'sanitizing' && 'Engaging Privacy Shield...'}
-      {step === 'reasoning' && 'Sovereign Logic Processing...'}
-      {step === 'rehydrating' && 'Rehydrating Sensitive Data...'}
-    </h3>
-    <p className="text-slate-500 text-sm">Processing securely within Lagos Gateway</p>
-  </div>
-);
-
-const ReportView = () => (
-  <div className="max-w-4xl mx-auto h-full flex flex-col">
-    {/* Document Header */}
-    <div className="bg-white p-8 shadow-sm border-b border-slate-100 flex-shrink-0">
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="font-serif text-3xl font-bold text-[#064E3B]">Credit Assessment Memo</h1>
-            <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200 uppercase tracking-wider">Approved</span>
-          </div>
-          <p className="text-slate-500 font-medium">Subject: Zenith Construction Ltd | Facility: N250m Term Loan</p>
-        </div>
-        <div className="text-right">
-          <div className="text-4xl font-serif font-bold text-[#D97706]">B+</div>
-          <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Risk Rating</div>
-        </div>
-      </div>
-    </div>
-
-    {/* Document Body */}
-    <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-white/50">
-      
-      {/* Key Metrics */}
-      <div className="grid grid-cols-3 gap-6">
-        <MetricCard label="DSCR" value="1.45x" status="pass" sub="Policy > 1.25x" />
-        <MetricCard label="Leverage" value="0.8x" status="pass" sub="Within Cap" />
-        <MetricCard label="Collateral Coverage" value="130%" status="pass" sub="Agbara Warehouse" />
-      </div>
-
-      {/* Analysis Sections */}
-      <section>
-        <h3 className="font-serif text-xl font-bold text-[#064E3B] mb-3 border-b border-slate-200 pb-2">1. Executive Summary</h3>
-        <p className="text-slate-700 leading-relaxed text-sm">
-          Zenith Construction demonstrates strong capability to service the requested facility. Cash flow projections for 2026 are robust, supported by two new government contracts. The requested N250m is primarily for equipment acquisition which directly drives revenue. 
-          <span className="ml-1 text-[#D97706] cursor-pointer hover:underline font-medium">[Ref: Biz_Plan_Pg4]</span>
-        </p>
-      </section>
-
-      <section>
-        <h3 className="font-serif text-xl font-bold text-[#064E3B] mb-3 border-b border-slate-200 pb-2">2. Risk Factors & Mitigants</h3>
-        <div className="space-y-4">
-          <RiskItem 
-            title="FX Exposure on Imports" 
-            desc="Raw material imports constitute 30% of COGS. Potential naira devaluation could compress margins."
-            mitigant="Borrower has agreed to execute an FX Forward Contract for Q3 imports."
-          />
-          <RiskItem 
-            title="Key Person Risk" 
-            desc="Operations heavily reliant on the Technical Director."
-            mitigant="Keyman Insurance policy is active and assigned to the Bank."
-          />
-        </div>
-      </section>
-      
-      <div className="h-12"></div> {/* Spacer */}
-    </div>
-  </div>
-);
-
-const MetricCard = ({ label, value, status, sub }) => (
-  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-    <div className="flex justify-between items-start mb-1">
-      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{label}</span>
-      {status === 'pass' ? <CheckCircle size={14} className="text-green-600" /> : <AlertTriangle size={14} className="text-amber-500" />}
-    </div>
-    <div className="text-2xl font-serif font-bold text-slate-800">{value}</div>
-    <div className="text-xs text-slate-500 mt-1">{sub}</div>
-  </div>
-);
-
-const RiskItem = ({ title, desc, mitigant }) => (
-  <div className="bg-slate-50 p-4 rounded-lg border-l-4 border-[#D97706]">
-    <h4 className="font-bold text-slate-800 text-sm mb-1">{title}</h4>
-    <p className="text-xs text-slate-600 mb-2">{desc}</p>
-    <div className="text-xs font-medium text-[#064E3B] flex items-center gap-1">
-      <Shield size={12} />
-      Mitigant: {mitigant}
-    </div>
-  </div>
-);
-
-const RightPanel = ({ appState, privacyStep }) => (
-  <div className={`w-[350px] bg-slate-50 border-l border-slate-200 flex flex-col h-screen transition-all duration-500`}>
-    {/* Top Half: Privacy Shield */}
-    <div className="flex-1 flex flex-col border-b border-slate-200 min-h-[50%]">
-      <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-          <Lock size={12} />
-          Privacy Shield Monitor
-        </span>
-        <div className="flex gap-1">
-          <div className={`w-2 h-2 rounded-full ${privacyStep === 'sanitizing' ? 'bg-[#D97706] animate-pulse' : 'bg-slate-200'}`} />
-          <div className={`w-2 h-2 rounded-full ${privacyStep === 'reasoning' ? 'bg-blue-500 animate-pulse' : 'bg-slate-200'}`} />
-          <div className={`w-2 h-2 rounded-full ${privacyStep === 'rehydrating' ? 'bg-[#064E3B] animate-pulse' : 'bg-slate-200'}`} />
-        </div>
-      </div>
-      
-      <div className="flex-1 bg-[#1E293B] p-4 font-mono text-xs overflow-hidden relative">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#064E3B] via-[#D97706] to-[#064E3B] opacity-50" />
-        
-        {/* Dynamic Code Display */}
-        <AnimatePresence mode="wait">
-          {privacyStep === 'sanitizing' && (
-            <motion.div 
-              key="sanitizing"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="text-slate-300"
-            >
-              <div className="text-[#D97706] mb-2">// INGESTING PAYLOAD...</div>
-              {MOCK_RAW_DATA.split('\n').map((line, i) => (
-                <div key={i} className="mb-1 opacity-50">{line}</div>
-              ))}
-              <div className="text-[#D97706] mt-4 mb-2">// DETECTING PII & TOKENIZING...</div>
-              {MOCK_SANITIZED_DATA.split('\n').map((line, i) => (
-                <div key={i} className="mb-1 text-green-400">{line}</div>
-              ))}
-            </motion.div>
-          )}
-
-          {privacyStep === 'reasoning' && (
-            <motion.div 
-              key="reasoning"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="text-blue-300"
-            >
-              <div className="text-blue-400 mb-2">// SENDING TO LLM (STATELESS)...</div>
-              <div className="mb-4 text-slate-400 border-l-2 border-slate-600 pl-2">
-                {MOCK_SANITIZED_DATA}
-              </div>
-              <div className="text-blue-400 mb-2">// REASONING STREAM...</div>
-              <Typewriter text={MOCK_REASONING} />
-            </motion.div>
-          )}
-
-          {privacyStep === 'rehydrating' && (
-            <motion.div 
-              key="rehydrating"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="text-slate-300"
-            >
-               <div className="text-[#064E3B] mb-2 text-green-400">// RECEIVING RESPONSE...</div>
-               <div className="text-[#D97706] mb-2">// REHYDRATING TOKENS [ORG_1] -&gt; "Zenith"...</div>
-               <div className="p-2 bg-slate-800 rounded text-slate-300">
-                 Status: Success<br/>
-                 Latency: 1.2s<br/>
-                 PII Leakage: 0%
-               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {/* Idle State for Privacy Shield when Report is ready */}
-        {appState === 'report' && (
-           <div className="text-green-500 flex flex-col items-center justify-center h-full">
-             <CheckCircle size={32} className="mb-2" />
-             <div>Transmission Secure</div>
-             <div className="text-slate-500">Vault Locked</div>
-           </div>
-        )}
-      </div>
-    </div>
-
-    {/* Bottom Half: Actions */}
-    <div className="flex-1 bg-white flex flex-col">
-      <div className="p-3 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-widest">
-        Actions
-      </div>
-      <div className="p-6 space-y-4">
-        <ActionButton icon={FileText} label="Generate PDF Report" disabled={appState !== 'report'} />
-        <ActionButton icon={Printer} label="Print Summary" disabled={appState !== 'report'} />
-        <ActionButton icon={Share2} label="Share Secure Link" disabled={appState !== 'report'} />
-        
-        {appState === 'report' && (
-          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
-            <strong>Executive Note:</strong> This assessment utilized the 2026 Credit Policy (v2.1).
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-);
-
-const ActionButton = ({ icon: Icon, label, disabled }) => (
-  <button 
-    disabled={disabled}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${disabled ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed' : 'bg-white text-slate-700 border-slate-200 hover:border-[#064E3B] hover:text-[#064E3B] shadow-sm'}`}
-  >
-    <Icon size={16} />
-    <span className="text-sm font-medium">{label}</span>
-  </button>
-);
-
-// Utility for typing effect
-const Typewriter = ({ text }) => {
-  const [display, setDisplay] = useState('');
-  
-  useEffect(() => {
-    let i = 0;
-    const timer = setInterval(() => {
-      if (i < text.length) {
-        setDisplay(prev => prev + text.charAt(i));
-        i++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 20);
-    return () => clearInterval(timer);
-  }, [text]);
-
-  return <div className="whitespace-pre-wrap font-mono text-xs leading-relaxed">{display}</div>;
+// --- Mock Citations ---
+const CITATIONS = {
+  1: { source: 'CBN_Prudential_Guidelines_2025.pdf', text: 'Sec 3.4: Single Obligor Limit shall not exceed 20% of unimpaired shareholders\' funds.' },
+  2: { source: 'Zenith_Construction_Fin_2025.pdf', text: 'Page 14: Projected cash flow for Q3 2026 includes N400m from FG Road Contract.' },
+  3: { source: 'Lagos_Land_Registry_Search.pdf', text: 'Status: Unencumbered. Registered Title No: LAG/2021/9928.' }
 };
 
-// --- Main App Component ---
+// --- Main Application ---
+export default function RiskLensComet() {
+  const [query, setQuery] = useState('');
+  const [thread, setThread] = useState([]); // Stores the conversation history
+  const [isVaultOpen, setIsVaultOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [appState, setAppState] = useState('idle'); // idle, processing, viewing
 
-export default function RiskLensApp() {
-  const [appState, setAppState] = useState('upload'); // upload | processing | report
-  const [privacyStep, setPrivacyStep] = useState('idle'); // idle | sanitizing | reasoning | rehydrating
-  const [chatInput, setChatInput] = useState('');
+  const messagesEndRef = useRef(null);
 
-  const startAnalysis = () => {
-    setAppState('processing');
-    
-    // Sequence the Privacy Shield Animation
-    setPrivacyStep('sanitizing');
-    
-    setTimeout(() => setPrivacyStep('reasoning'), 2000);
-    setTimeout(() => setPrivacyStep('rehydrating'), 5500);
-    setTimeout(() => {
-      setPrivacyStep('idle');
-      setAppState('report');
-    }, 7500);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [thread]);
+
+  // Handler: Submit Query
+  const handleSubmit = async () => {
+    if (!query.trim() && selectedFiles.length === 0) return;
+
+    const newQuery = { 
+      type: 'user', 
+      content: query, 
+      files: [...selectedFiles] 
+    };
+    
+    setThread(prev => [...prev, newQuery]);
+    setQuery('');
+    setSelectedFiles([]);
+    setAppState('processing');
+
+    // Simulate AI Response with Reasoning
+    // We add a placeholder "AI" message that will stream updates
+    setThread(prev => [...prev, { 
+      type: 'ai', 
+      isThinking: true, 
+      steps: ['sanitizing'], // Start mock steps
+      content: null 
+    }]);
+
+    // Simulate the "Privacy Shield" Pipeline
+    await delay(1500);
+    updateLastMessage({ steps: ['sanitizing', 'reasoning'] });
+    
+    await delay(2500);
+    updateLastMessage({ steps: ['sanitizing', 'reasoning', 'rehydrating'] });
+    
+    await delay(1500);
+    updateLastMessage({ 
+      isThinking: false,
+      content: MOCK_CREDIT_MEMO,
+      sources: [SECURE_DRIVE_FILES[0], SECURE_DRIVE_FILES[3], SECURE_DRIVE_FILES[2]]
+    });
+    setAppState('viewing');
+  };
+
+  const updateLastMessage = (updates) => {
+    setThread(prev => {
+      const newThread = [...prev];
+      const lastMsg = newThread[newThread.length - 1];
+      newThread[newThread.length - 1] = { ...lastMsg, ...updates };
+      return newThread;
+    });
+  };
+
+  const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
   return (
-    <div className={`flex h-screen ${COLORS.bg} font-sans text-slate-800 overflow-hidden`}>
-      {/* Pane 1: Left Sidebar */}
-      <Sidebar activeGem="Credit RiskLens" />
+    <div className={`min-h-screen ${THEME.bg} font-sans text-slate-800 flex flex-col`}>
+      
+      {/* 1. Minimal Header */}
+      <header className="sticky top-0 z-50 bg-[#F9FAFB]/80 backdrop-blur-md border-b border-transparent transition-all duration-300 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2 cursor-pointer">
+          <Shield className="text-[#064E3B] fill-[#064E3B]/10" size={24} />
+          <span className="font-serif font-bold text-xl tracking-tight text-[#064E3B]">RiskLens</span>
+        </div>
+        <div className="flex items-center gap-4">
+           <button className="text-sm font-medium text-slate-500 hover:text-[#064E3B]">History</button>
+           <div className="w-8 h-8 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-xs font-bold">EO</div>
+        </div>
+      </header>
 
-      {/* Pane 2: Center Workspace */}
-      <div className="flex-1 flex flex-col relative">
-        {/* Dynamic Content Area */}
-        <div className="flex-1 overflow-hidden relative">
-          <AnimatePresence mode="wait">
-            {appState === 'upload' && (
-              <motion.div 
-                key="upload"
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                className="h-full"
-              >
-                <UploadWidget onAnalyze={startAnalysis} />
-              </motion.div>
-            )}
+      {/* 2. Main Scroll Area */}
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 pb-40 pt-10">
+        
+        {/* Empty State / Welcome */}
+        {thread.length === 0 && (
+          <div className="text-center mt-20 mb-10">
+            <h1 className="font-serif text-4xl text-[#111827] mb-4">Good afternoon, Emeka.</h1>
+            <p className="text-slate-500 text-lg">Ready to analyze a new credit opportunity?</p>
+            
+            {/* Suggested Pills */}
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              <SuggestionPill icon={FileText} text="New Credit Assessment" onClick={() => setQuery("Analyze this credit application for Zenith Construction...")} />
+              <SuggestionPill icon={Search} text="Review Regulatory Compliance" />
+              <SuggestionPill icon={Database} text="Search Golden Memos" />
+            </div>
+          </div>
+        )}
 
-            {appState === 'processing' && (
-              <motion.div 
-                key="processing"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="h-full"
-              >
-                <LoadingState step={privacyStep} />
-              </motion.div>
-            )}
-
-            {appState === 'report' && (
-              <motion.div 
-                key="report"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="h-full pb-20" // Padding for chat bar
-              >
-                <ReportView />
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Conversation Thread */}
+        <div className="space-y-10">
+          {thread.map((msg, idx) => (
+            <div key={idx}>
+              {msg.type === 'user' ? (
+                <UserMessage content={msg.content} files={msg.files} />
+              ) : (
+                <AiMessage 
+                  content={msg.content} 
+                  isThinking={msg.isThinking} 
+                  steps={msg.steps}
+                  sources={msg.sources}
+                />
+              )}
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Bottom Chat Bar (Sticky) */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#FDFCF5] via-[#FDFCF5] to-transparent">
-          <div className="max-w-3xl mx-auto relative shadow-lg rounded-xl bg-white border border-slate-200 flex items-center p-2">
-            <input 
-              type="text" 
-              placeholder={appState === 'report' ? "Ask follow-up questions or request adjustments..." : "Analysis not yet started..."}
-              disabled={appState !== 'report'}
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              className="flex-1 px-4 py-2 bg-transparent outline-none text-sm disabled:cursor-not-allowed"
+      </main>
+
+      {/* 3. Floating Input Bar (Sticky Bottom) */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F9FAFB] via-[#F9FAFB] to-transparent z-40">
+        <div className="max-w-3xl mx-auto">
+          {/* Selected Files Chips */}
+          {selectedFiles.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {selectedFiles.map(file => (
+                <div key={file.id} className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm text-sm text-slate-700">
+                  <FileText size={14} className="text-[#D97706]" />
+                  <span className="truncate max-w-[150px]">{file.name}</span>
+                  <button onClick={() => setSelectedFiles(files => files.filter(f => f.id !== file.id))} className="hover:text-red-500">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* The Input Box */}
+          <div className="relative bg-white shadow-xl rounded-2xl border border-slate-200 focus-within:border-[#064E3B] focus-within:ring-1 focus-within:ring-[#064E3B] transition-all">
+            <textarea
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Ask anything..."
+              className="w-full pl-4 pr-16 py-4 bg-transparent outline-none text-base resize-none max-h-40 min-h-[60px]"
+              onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }}}
             />
-            <button 
-              disabled={appState !== 'report'}
-              className={`p-2 rounded-lg transition-colors ${appState === 'report' ? 'bg-[#064E3B] text-white hover:bg-[#053d2e]' : 'bg-slate-100 text-slate-300'}`}
-            >
-              <Send size={18} />
-            </button>
+            
+            <div className="absolute bottom-3 left-4 flex items-center gap-2">
+               <button 
+                 onClick={() => setIsVaultOpen(true)}
+                 className="flex items-center gap-1 text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-600 px-2 py-1 rounded transition-colors border border-slate-200"
+               >
+                 <Paperclip size={14} />
+                 Attach from Vault
+               </button>
+            </div>
+
+            <div className="absolute bottom-3 right-3">
+              <button 
+                onClick={handleSubmit}
+                disabled={!query.trim() && selectedFiles.length === 0}
+                className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${(!query.trim() && selectedFiles.length === 0) ? 'bg-slate-200 text-slate-400' : 'bg-[#064E3B] text-white hover:bg-[#053d2e]'}`}
+              >
+                <ArrowUp size={18} strokeWidth={2.5} />
+              </button>
+            </div>
           </div>
+          <p className="text-center text-xs text-slate-400 mt-3">
+            Sovereign AI uses <span className="font-semibold text-slate-500">Privacy Shield™</span> to sanitize data before inference.
+          </p>
         </div>
       </div>
 
-      {/* Pane 3: Right Panel */}
-      <RightPanel appState={appState} privacyStep={privacyStep} />
+      {/* Vault Modal */}
+      <AnimatePresence>
+        {isVaultOpen && (
+          <VaultModal 
+            onClose={() => setIsVaultOpen(false)} 
+            onSelect={(file) => {
+              if (!selectedFiles.find(f => f.id === file.id)) {
+                setSelectedFiles([...selectedFiles, file]);
+              }
+              setIsVaultOpen(false);
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
+
+// --- Sub-Components ---
+
+const UserMessage = ({ content, files }) => (
+  <div className="flex flex-col items-end mb-8">
+    <div className="bg-[#F3F4F6] text-[#111827] px-5 py-3 rounded-2xl rounded-tr-sm max-w-[80%] text-lg leading-relaxed shadow-sm">
+      {content}
+    </div>
+    {files && files.length > 0 && (
+      <div className="mt-2 flex flex-col items-end gap-1">
+        {files.map(file => (
+          <div key={file.id} className="flex items-center gap-2 text-xs text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm">
+            <FileText size={12} /> {file.name}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
+const AiMessage = ({ content, isThinking, steps, sources }) => {
+  return (
+    <div className="flex gap-4 mb-8 w-full">
+      <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm flex-shrink-0 mt-1">
+        <Shield size={16} className="text-[#064E3B]" />
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <div className="font-bold text-sm text-[#111827] mb-2">RiskLens</div>
+        
+        {/* Reasoning Accordion (The Privacy Shield Visual) */}
+        <ReasoningAccordion steps={steps} isThinking={isThinking} />
+
+        {/* Sources Row */}
+        {!isThinking && sources && (
+          <div className="flex gap-3 mb-6 overflow-x-auto pb-2 no-scrollbar">
+            {sources.map((source, i) => (
+              <SourceCard key={i} source={source} index={i + 1} />
+            ))}
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!isThinking && content ? (
+          <div className="prose prose-slate max-w-none text-[16px] leading-7 text-[#374151]">
+            <FormattedOutput text={content} />
+            
+            {/* Action Chips */}
+            <div className="flex gap-3 mt-6 pt-4 border-t border-slate-100">
+              <button className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#064E3B] transition-colors">
+                <Share size={14} /> Share
+              </button>
+              <button className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#064E3B] transition-colors">
+                <Printer size={14} /> Executive PDF
+              </button>
+              <button className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#064E3B] transition-colors">
+                <MoreHorizontal size={14} />
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+// The "Thinking" Accordion - Critical for Sovereign Trust
+const ReasoningAccordion = ({ steps, isThinking }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  
+  // Auto-collapse when done thinking
+  useEffect(() => {
+    if (!isThinking) setIsOpen(false);
+  }, [isThinking]);
+
+  return (
+    <div className="mb-4">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
+      >
+        {isThinking ? (
+          <span className="flex items-center gap-2 animate-pulse text-[#D97706]">
+            <div className="w-2 h-2 bg-[#D97706] rounded-full" />
+            Analyzing Sovereign Data...
+          </span>
+        ) : (
+          <span className="flex items-center gap-2 text-[#064E3B]">
+            <CheckCircle2 size={14} />
+            Processed Securely
+          </span>
+        )}
+        {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pl-4 border-l-2 border-slate-100 mt-2 space-y-2">
+              <ReasoningStep 
+                label="Sanitizing Sensitive PII (BVN, Names)" 
+                status={steps.includes('sanitizing') ? 'done' : 'pending'} 
+                active={isThinking && steps.length === 1}
+              />
+              <ReasoningStep 
+                label="Consulting Sovereign Logic (Local Vector DB)" 
+                status={steps.includes('reasoning') ? 'done' : 'pending'} 
+                active={isThinking && steps.length === 2}
+              />
+              <ReasoningStep 
+                label="Rehydrating & Formatting Response" 
+                status={steps.includes('rehydrating') ? 'done' : 'pending'} 
+                active={isThinking && steps.length === 3}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const ReasoningStep = ({ label, status, active }) => (
+  <div className={`flex items-center gap-2 text-xs ${status === 'done' ? 'text-slate-600' : 'text-slate-300'}`}>
+    {status === 'done' ? (
+      <Lock size={12} className={active ? "text-[#D97706] animate-pulse" : "text-[#064E3B]"} />
+    ) : (
+      <div className="w-3 h-3 rounded-full border border-slate-200" />
+    )}
+    <span>{label}</span>
+  </div>
+);
+
+const SourceCard = ({ source, index }) => (
+  <div className="min-w-[160px] max-w-[180px] bg-white border border-slate-200 rounded-lg p-3 hover:bg-slate-50 cursor-pointer transition-colors group shadow-sm">
+    <div className="text-[10px] text-slate-400 font-bold mb-1 uppercase tracking-wider">{source.type}</div>
+    <div className="font-semibold text-xs text-slate-700 line-clamp-2 mb-2 leading-tight group-hover:text-[#064E3B]">{source.name}</div>
+    <div className="flex items-center gap-1">
+      <div className="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-bold">{index}</div>
+      <div className="text-[10px] text-slate-400">{source.date}</div>
+    </div>
+  </div>
+);
+
+const SuggestionPill = ({ icon: Icon, text, onClick }) => (
+  <button 
+    onClick={onClick}
+    className="flex items-center gap-2 bg-white border border-slate-200 hover:border-[#D97706] px-4 py-2 rounded-full text-sm text-slate-600 shadow-sm hover:shadow-md transition-all"
+  >
+    <Icon size={16} className="text-slate-400" />
+    {text}
+  </button>
+);
+
+const VaultModal = ({ onClose, onSelect }) => (
+  <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+    >
+      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-[#F9FAFB]">
+        <div className="flex items-center gap-2 font-bold text-slate-700">
+          <Database size={18} className="text-[#064E3B]" />
+          Internal Secure Drive
+        </div>
+        <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full"><X size={18} /></button>
+      </div>
+      <div className="max-h-[60vh] overflow-y-auto p-2">
+        {SECURE_DRIVE_FILES.map(file => (
+          <div 
+            key={file.id} 
+            onClick={() => onSelect(file)}
+            className="flex items-center gap-3 p-3 hover:bg-[#F3F4F6] rounded-lg cursor-pointer group transition-colors"
+          >
+            <div className="w-10 h-10 rounded bg-[#E5E7EB] flex items-center justify-center group-hover:bg-white group-hover:shadow-sm">
+              <FileText size={20} className="text-slate-500 group-hover:text-[#D97706]" />
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-medium text-slate-800">{file.name}</div>
+              <div className="text-xs text-slate-400">{file.type} • {file.date}</div>
+            </div>
+            <ArrowUp size={16} className="text-slate-300 group-hover:text-[#064E3B] rotate-45" />
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  </div>
+);
+
+// Helper: Formats the text with bolding and Citation Tooltips
+const FormattedOutput = ({ text }) => {
+  // Simple parser to handle bolding **text** and citations [1]
+  const parts = text.split(/(\*\*.*?\*\*|\[\d+\])/g);
+  
+  return (
+    <p>
+      {parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={i} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
+        }
+        if (part.match(/^\[\d+\]$/)) {
+          const id = part.slice(1, -1);
+          return (
+            <span key={i} className="relative inline-block group ml-1 align-super text-[10px]">
+              <span className="cursor-pointer text-[#D97706] font-bold hover:underline bg-[#FEF3C7] px-1 rounded">{id}</span>
+              {/* Tooltip */}
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-900 text-white text-xs p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed text-left border border-slate-700">
+                <span className="block font-bold text-slate-400 mb-1 text-[10px] uppercase">{CITATIONS[id]?.source}</span>
+                "{CITATIONS[id]?.text}"
+              </span>
+            </span>
+          );
+        }
+        return part;
+      })}
+    </p>
+  );
+};
+
+// --- Mock Content for the Credit Memo ---
+const MOCK_CREDIT_MEMO = `**Executive Summary**
+Zenith Construction Ltd has requested a **N250,000,000 Term Loan** for heavy equipment acquisition. The company demonstrates strong repayment capacity with a projected DSCR of **1.45x** [2], comfortably exceeding our internal policy threshold of 1.25x.
+
+**Regulatory Compliance**
+The request complies with all CBN Prudential Guidelines. The exposure represents 12% of the bank's unimpaired shareholders' funds, which is within the **Single Obligor Limit of 20%** [1]. The collateral offered (Agbara Warehouse) is unencumbered and registered [3].
+
+**Risk Factors**
+1. **FX Exposure:** The borrower relies on imported raw materials. A 20% devaluation could impact margins.
+2. **Key Person Risk:** Operations are heavily centralized around the Managing Director.
+
+**Recommendation**
+**APPROVE** subject to the execution of an FX Forward Contract 
