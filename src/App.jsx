@@ -14,44 +14,46 @@ import {
   MoreHorizontal,
   Share,
   Printer,
-  User
+  User,
+  Bell,
+  Play,
+  Pause,
+  Mic,
+  FileAudio,
+  Sparkles,
+  Download,
+  Landmark
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- Design Tokens ---
+// --- Design Tokens (Perplexity-inspired Enterprise Theme) ---
 const THEME = {
-  bg: 'bg-[#F9FAFB]',       // Clean Ultra-Light Gray (Paper-like)
+  bg: 'bg-[#F3F4F6]',       // Light Gray Background
   card: 'bg-white',
-  textMain: 'text-[#111827]',
+  textMain: 'text-[#111827]', // Near Black
   textMuted: 'text-[#6B7280]',
-  accent: 'text-[#064E3B]', // Deep Emerald (Sovereign)
-  gold: 'text-[#D97706]',   // Gold Highlights
+  accent: 'text-[#064E3B]', // Sovereign Green
+  accentBg: 'bg-[#064E3B]',
+  gold: 'text-[#D97706]',
   border: 'border-[#E5E7EB]',
 };
 
-// --- Mock Data: Secure Vault Files ---
-const SECURE_DRIVE_FILES = [
-  { id: 1, name: 'Zenith_Construction_Fin_2025.pdf', type: 'Financials', date: 'Jan 12, 2026' },
-  { id: 2, name: 'CRC_Credit_Bureau_Report.pdf', type: 'Bureau', date: 'Jan 14, 2026' },
-  { id: 3, name: 'Lagos_Land_Registry_Search.pdf', type: 'Legal', date: 'Jan 10, 2026' },
-  { id: 4, name: 'CBN_Prudential_Guidelines_2025.pdf', type: 'Regulation', date: 'Dec 01, 2025' },
-  { id: 5, name: 'Global_Oil_Price_Forecast_Q1.pdf', type: 'Market Data', date: 'Jan 02, 2026' },
+// --- Mock Data: Meeting Recordings ---
+const INBOX_RECORDINGS = [
+  { id: 1, name: 'Board_Strategy_Q1_2026.mp3', duration: '1h 45m', date: 'Jan 22, 2026', type: 'Teams Recording' },
+  { id: 2, name: 'Risk_Committee_Sync.mp3', duration: '45m', date: 'Jan 23, 2026', type: 'Teams Recording' },
+  { id: 3, name: 'Audit_Governance_Review.mp3', duration: '1h 15m', date: 'Jan 20, 2026', type: 'Teams Recording' },
 ];
 
-// --- Mock Citations ---
-const CITATIONS = {
-  1: { source: 'CBN_Prudential_Guidelines_2025.pdf', text: 'Sec 3.4: Single Obligor Limit shall not exceed 20% of unimpaired shareholders\' funds.' },
-  2: { source: 'Zenith_Construction_Fin_2025.pdf', text: 'Page 14: Projected cash flow for Q3 2026 includes N400m from FG Road Contract.' },
-  3: { source: 'Lagos_Land_Registry_Search.pdf', text: 'Status: Unencumbered. Registered Title No: LAG/2021/9928.' }
-};
-
 // --- Main Application ---
-export default function RiskLensComet() {
+export default function SecretariatComet() {
   const [query, setQuery] = useState('');
-  const [thread, setThread] = useState([]); // Stores the conversation history
+  const [thread, setThread] = useState([]);
   const [isVaultOpen, setIsVaultOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [appState, setAppState] = useState('idle'); // idle, processing, viewing
+  const [showInbox, setShowInbox] = useState(true);
+  const [suggestedPrompt, setSuggestedPrompt] = useState('');
 
   const messagesEndRef = useRef(null);
 
@@ -63,43 +65,72 @@ export default function RiskLensComet() {
     scrollToBottom();
   }, [thread]);
 
+  // Handler: Select Audio from Inbox
+  const handleFileSelect = (file) => {
+    if (!selectedFiles.find(f => f.id === file.id)) {
+      setSelectedFiles([...selectedFiles, file]);
+    }
+    // Set the pre-canned prompt
+    setSuggestedPrompt(`Transcribe and draft executive minutes for the ${file.name.replace('.mp3', '').replace(/_/g, ' ')} meeting. Focus on key strategic decisions, action items, and dissent.`);
+    setIsVaultOpen(false);
+    setShowInbox(false); // Clear the main inbox notification once engaged
+  };
+
   // Handler: Submit Query
   const handleSubmit = async () => {
-    if (!query.trim() && selectedFiles.length === 0) return;
+    const finalQuery = query || suggestedPrompt;
+    if (!finalQuery.trim() && selectedFiles.length === 0) return;
 
     const newQuery = { 
       type: 'user', 
-      content: query, 
+      content: finalQuery, 
       files: [...selectedFiles] 
     };
     
     setThread(prev => [...prev, newQuery]);
     setQuery('');
-    setSelectedFiles([]);
+    setSuggestedPrompt(''); // Clear suggestion
     setAppState('processing');
 
-    // Simulate AI Response with Reasoning
-    // We add a placeholder "AI" message that will stream updates
+    // Add placeholder AI message
     setThread(prev => [...prev, { 
       type: 'ai', 
       isThinking: true, 
-      steps: ['sanitizing'], // Start mock steps
+      steps: ['sanitizing'], 
       content: null 
     }]);
 
-    // Simulate the "Privacy Shield" Pipeline
-    await delay(1500);
-    updateLastMessage({ steps: ['sanitizing', 'reasoning'] });
+    // DEMO LOGIC: Check if this is the specific update request
+    const isUpdateRequest = finalQuery.toLowerCase().includes("update the reduction");
+
+    if (isUpdateRequest) {
+        // Shorter processing for updates
+        await delay(1000);
+        updateLastMessage({ steps: ['sanitizing', 'verifying'] });
+        await delay(1000);
+        updateLastMessage({ steps: ['sanitizing', 'verifying', 'updating'] });
+        await delay(800);
+        updateLastMessage({ 
+            isThinking: false,
+            content: MOCK_MEETING_MINUTES_UPDATED,
+            sources: selectedFiles.length > 0 ? selectedFiles : [{ name: 'Project_NairaFlow_Notebook.pdf', type: 'Vault Doc', date: 'Jan 23, 2026' }]
+        });
+    } else {
+        // Standard initial processing
+        await delay(1200);
+        updateLastMessage({ steps: ['sanitizing', 'transcribing'] });
+        
+        await delay(1500);
+        updateLastMessage({ steps: ['sanitizing', 'transcribing', 'drafting'] });
+        
+        await delay(1500);
+        updateLastMessage({ 
+            isThinking: false,
+            content: MOCK_MEETING_MINUTES,
+            sources: selectedFiles
+        });
+    }
     
-    await delay(2500);
-    updateLastMessage({ steps: ['sanitizing', 'reasoning', 'rehydrating'] });
-    
-    await delay(1500);
-    updateLastMessage({ 
-      isThinking: false,
-      content: MOCK_CREDIT_MEMO,
-      sources: [SECURE_DRIVE_FILES[0], SECURE_DRIVE_FILES[3], SECURE_DRIVE_FILES[2]]
-    });
     setAppState('viewing');
   };
 
@@ -115,124 +146,162 @@ export default function RiskLensComet() {
   const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
   return (
-    <div className={`min-h-screen ${THEME.bg} font-sans text-slate-800 flex flex-col`}>
+    <div className={`min-h-screen ${THEME.bg} font-sans text-slate-800 flex`}>
       
-      {/* 1. Minimal Header */}
-      <header className="sticky top-0 z-50 bg-[#F9FAFB]/80 backdrop-blur-md border-b border-transparent transition-all duration-300 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 cursor-pointer">
-          <Shield className="text-[#064E3B] fill-[#064E3B]/10" size={24} />
-          <span className="font-serif font-bold text-xl tracking-tight text-[#064E3B]">RiskLens</span>
+      {/* 1. Slim Left Navigation (Perplexity Style) */}
+      <nav className="w-16 md:w-20 bg-[#F9FAFB] border-r border-slate-200 flex flex-col items-center py-6 gap-6 fixed h-full z-50">
+        <div className="w-10 h-10 rounded-lg bg-[#064E3B] flex items-center justify-center shadow-md mb-4" title="SeeBess Bank Sovereign Vault">
+          <Landmark className="text-[#D97706]" size={24} />
         </div>
-        <div className="flex items-center gap-4">
-           <button className="text-sm font-medium text-slate-500 hover:text-[#064E3B]">History</button>
-           <div className="w-8 h-8 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-xs font-bold">EO</div>
+        <NavItem icon={Sparkles} active />
+        <NavItem icon={Search} />
+        <NavItem icon={Database} />
+        <div className="mt-auto flex flex-col gap-4">
+          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">JS</div>
         </div>
-      </header>
+      </nav>
 
-      {/* 2. Main Scroll Area */}
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 pb-40 pt-10">
+      {/* 2. Main Content Area */}
+      <main className="flex-1 ml-16 md:ml-20 relative">
         
-        {/* Empty State / Welcome */}
-        {thread.length === 0 && (
-          <div className="text-center mt-20 mb-10">
-            <h1 className="font-serif text-4xl text-[#111827] mb-4">Good afternoon, Emeka.</h1>
-            <p className="text-slate-500 text-lg">Ready to analyze a new credit opportunity?</p>
-            
-            {/* Suggested Pills */}
-            <div className="flex flex-wrap justify-center gap-3 mt-8">
-              <SuggestionPill icon={FileText} text="New Credit Assessment" onClick={() => setQuery("Analyze this credit application for Zenith Construction...")} />
-              <SuggestionPill icon={Search} text="Review Regulatory Compliance" />
-              <SuggestionPill icon={Database} text="Search Golden Memos" />
+        {/* Sticky Header */}
+        <header className="sticky top-0 z-30 bg-[#F3F4F6]/90 backdrop-blur-md px-8 py-4 flex justify-between items-center border-b border-transparent transition-all">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              <h1 className="font-serif font-bold text-xl text-[#064E3B] tracking-tight">SeeBess Bank</h1>
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Secretariat Intelligent Console</span>
             </div>
+            <span className="ml-2 px-2 py-0.5 bg-[#D97706]/10 text-[#D97706] text-[10px] font-bold uppercase rounded tracking-wider border border-[#D97706]/20">Confidential</span>
           </div>
-        )}
+          <div className="flex items-center gap-3">
+             <button className="text-slate-500 hover:text-[#064E3B] transition-colors"><Share size={18} /></button>
+          </div>
+        </header>
 
-        {/* Conversation Thread */}
-        <div className="space-y-10">
-          {thread.map((msg, idx) => (
-            <div key={idx}>
-              {msg.type === 'user' ? (
-                <UserMessage content={msg.content} files={msg.files} />
-              ) : (
-                <AiMessage 
-                  content={msg.content} 
-                  isThinking={msg.isThinking} 
-                  steps={msg.steps}
-                  sources={msg.sources}
-                />
+        {/* Scrollable Feed */}
+        <div className="max-w-3xl mx-auto px-4 pb-48 pt-8 min-h-screen">
+          
+          {/* Welcome / Empty State */}
+          {thread.length === 0 && (
+            <div className="mt-16 text-center animate-fade-in-up">
+              <h2 className="font-serif text-4xl text-[#111827] mb-3">Governance Intelligence</h2>
+              <p className="text-slate-500 text-lg mb-12">Draft minutes, analyze compliance, and query records.</p>
+              
+              {/* Inbox Notification Card */}
+              {showInbox && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white border border-slate-200 rounded-xl p-1 shadow-sm max-w-lg mx-auto text-left mb-8 cursor-pointer hover:shadow-md transition-shadow ring-1 ring-[#064E3B]/5"
+                  onClick={() => setIsVaultOpen(true)}
+                >
+                  <div className="bg-[#FEF3C7] px-4 py-2 rounded-t-lg flex items-center gap-2 text-[#92400E] text-xs font-bold uppercase tracking-wide">
+                    <Bell size={12} /> Action Required
+                  </div>
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mic size={24} className="text-[#064E3B]" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-slate-800">Unprocessed Meeting Notes</h3>
+                      <p className="text-sm text-slate-500">3 new recordings from MS Teams pending transcription.</p>
+                    </div>
+                    <ChevronRight className="text-slate-300" />
+                  </div>
+                </motion.div>
               )}
             </div>
-          ))}
-          <div ref={messagesEndRef} />
+          )}
+
+          {/* Conversation Thread */}
+          <div className="space-y-12">
+            {thread.map((msg, idx) => (
+              <div key={idx}>
+                {msg.type === 'user' ? (
+                  <h2 className="text-2xl md:text-3xl font-serif text-[#111827] mb-6 leading-tight border-l-4 border-[#D97706] pl-4">
+                    {msg.content}
+                  </h2>
+                ) : (
+                  <AiResponse 
+                    content={msg.content} 
+                    isThinking={msg.isThinking} 
+                    steps={msg.steps}
+                    sources={msg.sources}
+                  />
+                )}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
       </main>
 
       {/* 3. Floating Input Bar (Sticky Bottom) */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F9FAFB] via-[#F9FAFB] to-transparent z-40">
+      <div className="fixed bottom-0 left-16 md:left-20 right-0 p-6 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent z-40">
         <div className="max-w-3xl mx-auto">
-          {/* Selected Files Chips */}
+          
+          {/* Active File Pills */}
           {selectedFiles.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex gap-2 mb-3 overflow-x-auto">
               {selectedFiles.map(file => (
-                <div key={file.id} className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm text-sm text-slate-700">
-                  <FileText size={14} className="text-[#D97706]" />
-                  <span className="truncate max-w-[150px]">{file.name}</span>
-                  <button onClick={() => setSelectedFiles(files => files.filter(f => f.id !== file.id))} className="hover:text-red-500">
-                    <X size={14} />
-                  </button>
+                <div key={file.id} className="flex items-center gap-2 bg-white border border-[#E5E7EB] pl-2 pr-1 py-1 rounded-full text-xs font-medium text-slate-700 shadow-sm">
+                  <FileAudio size={12} className="text-[#D97706]" />
+                  <span className="max-w-[200px] truncate">{file.name}</span>
+                  <button onClick={() => setSelectedFiles(selectedFiles.filter(f => f.id !== file.id))} className="hover:bg-slate-100 rounded-full p-1"><X size={12} /></button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* The Input Box */}
-          <div className="relative bg-white shadow-xl rounded-2xl border border-slate-200 focus-within:border-[#064E3B] focus-within:ring-1 focus-within:ring-[#064E3B] transition-all">
+          <div className="relative bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl border border-slate-200 focus-within:border-[#064E3B] transition-all overflow-hidden group">
+            
+            {/* Auto-Prompt Suggestion Overlay */}
+            {suggestedPrompt && !query && (
+              <div className="absolute top-4 left-4 right-16 pointer-events-none text-slate-400 truncate italic">
+                {suggestedPrompt}
+              </div>
+            )}
+
             <textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask anything..."
-              className="w-full pl-4 pr-16 py-4 bg-transparent outline-none text-base resize-none max-h-40 min-h-[60px]"
+              placeholder={suggestedPrompt ? "" : "Ask a follow up question..."}
+              className="w-full pl-4 pr-14 py-4 bg-transparent outline-none text-base resize-none max-h-40 min-h-[60px] text-slate-800 placeholder:text-slate-400"
               onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }}}
             />
             
-            <div className="absolute bottom-3 left-4 flex items-center gap-2">
+            <div className="absolute bottom-2 left-2 flex gap-1">
                <button 
                  onClick={() => setIsVaultOpen(true)}
-                 className="flex items-center gap-1 text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-600 px-2 py-1 rounded transition-colors border border-slate-200"
+                 className="p-2 text-slate-400 hover:text-[#064E3B] hover:bg-slate-50 rounded-lg transition-colors"
+                 title="Attach from Vault"
                >
-                 <Paperclip size={14} />
-                 Attach from Vault
+                 <Paperclip size={18} />
                </button>
             </div>
 
-            <div className="absolute bottom-3 right-3">
-              <button 
-                onClick={handleSubmit}
-                disabled={!query.trim() && selectedFiles.length === 0}
-                className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${(!query.trim() && selectedFiles.length === 0) ? 'bg-slate-200 text-slate-400' : 'bg-[#064E3B] text-white hover:bg-[#053d2e]'}`}
-              >
-                <ArrowUp size={18} strokeWidth={2.5} />
-              </button>
-            </div>
+            <button 
+              onClick={handleSubmit}
+              disabled={(!query.trim() && !suggestedPrompt && selectedFiles.length === 0)}
+              className={`absolute bottom-3 right-3 p-1.5 rounded-lg transition-all ${(!query.trim() && !suggestedPrompt && selectedFiles.length === 0) ? 'bg-slate-100 text-slate-300' : 'bg-[#064E3B] text-white hover:bg-[#053d2e]'}`}
+            >
+              <ArrowUp size={20} />
+            </button>
           </div>
-          <p className="text-center text-xs text-slate-400 mt-3">
-            Sovereign AI uses <span className="font-semibold text-slate-500">Privacy Shield™</span> to sanitize data before inference.
-          </p>
+          
+          <div className="mt-3 flex justify-center items-center gap-2 text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
+            <Lock size={10} /> SeeBess Sovereign Privacy Shield Active
+          </div>
         </div>
       </div>
 
       {/* Vault Modal */}
       <AnimatePresence>
         {isVaultOpen && (
-          <VaultModal 
+          <InboxModal 
             onClose={() => setIsVaultOpen(false)} 
-            onSelect={(file) => {
-              if (!selectedFiles.find(f => f.id === file.id)) {
-                setSelectedFiles([...selectedFiles, file]);
-              }
-              setIsVaultOpen(false);
-            }} 
+            onSelect={handleFileSelect} 
           />
         )}
       </AnimatePresence>
@@ -243,60 +312,57 @@ export default function RiskLensComet() {
 
 // --- Sub-Components ---
 
-const UserMessage = ({ content, files }) => (
-  <div className="flex flex-col items-end mb-8">
-    <div className="bg-[#F3F4F6] text-[#111827] px-5 py-3 rounded-2xl rounded-tr-sm max-w-[80%] text-lg leading-relaxed shadow-sm">
-      {content}
-    </div>
-    {files && files.length > 0 && (
-      <div className="mt-2 flex flex-col items-end gap-1">
-        {files.map(file => (
-          <div key={file.id} className="flex items-center gap-2 text-xs text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded shadow-sm">
-            <FileText size={12} /> {file.name}
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
+const NavItem = ({ icon: Icon, active }) => (
+  <button className={`p-3 rounded-xl transition-all ${active ? 'bg-white shadow-sm text-[#064E3B]' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}>
+    <Icon size={22} />
+  </button>
 );
 
-const AiMessage = ({ content, isThinking, steps, sources }) => {
+const AiResponse = ({ content, isThinking, steps, sources }) => {
   return (
-    <div className="flex gap-4 mb-8 w-full">
-      <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm flex-shrink-0 mt-1">
-        <Shield size={16} className="text-[#064E3B]" />
+    <div className="w-full">
+      {/* Sources Row (Perplexity Style) */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <Database size={12} /> Sources
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+          {sources && sources.map((source, i) => (
+            <div key={i} className="flex-shrink-0 w-48 bg-white border border-slate-200 rounded-lg p-3 hover:border-[#D97706] transition-colors cursor-pointer group">
+              <div className="flex justify-between items-start mb-2">
+                <FileAudio size={16} className="text-slate-400 group-hover:text-[#D97706]" />
+                <span className="text-[10px] text-slate-400 font-mono">{i + 1}</span>
+              </div>
+              <div className="text-xs font-medium text-slate-800 line-clamp-2 leading-snug mb-1">
+                {source.name}
+              </div>
+              <div className="text-[10px] text-slate-400">{source.date}</div>
+            </div>
+          ))}
+        </div>
       </div>
-      
-      <div className="flex-1 min-w-0">
-        <div className="font-bold text-sm text-[#111827] mb-2">RiskLens</div>
-        
-        {/* Reasoning Accordion (The Privacy Shield Visual) */}
+
+      {/* Reasoning Engine (Inline) */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <Sparkles size={12} /> Reasoning
+        </div>
         <ReasoningAccordion steps={steps} isThinking={isThinking} />
+      </div>
 
-        {/* Sources Row */}
-        {!isThinking && sources && (
-          <div className="flex gap-3 mb-6 overflow-x-auto pb-2 no-scrollbar">
-            {sources.map((source, i) => (
-              <SourceCard key={i} source={source} index={i + 1} />
-            ))}
-          </div>
-        )}
-
-        {/* Main Content */}
+      {/* Main Content */}
+      <div className="border-t border-slate-200 pt-6">
         {!isThinking && content ? (
-          <div className="prose prose-slate max-w-none text-[16px] leading-7 text-[#374151]">
+          <div className="prose prose-slate max-w-none prose-h2:font-serif prose-h2:text-[#064E3B] prose-strong:text-[#111827]">
             <FormattedOutput text={content} />
             
-            {/* Action Chips */}
-            <div className="flex gap-3 mt-6 pt-4 border-t border-slate-100">
-              <button className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#064E3B] transition-colors">
-                <Share size={14} /> Share
+            {/* Download/Export Actions */}
+            <div className="mt-8 flex gap-4">
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-[#064E3B] hover:text-[#064E3B] transition-colors shadow-sm">
+                <Download size={16} /> Export PDF
               </button>
-              <button className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#064E3B] transition-colors">
-                <Printer size={14} /> Executive PDF
-              </button>
-              <button className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#064E3B] transition-colors">
-                <MoreHorizontal size={14} />
+              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:border-[#064E3B] hover:text-[#064E3B] transition-colors shadow-sm">
+                <Share size={16} /> Circulate Draft
               </button>
             </div>
           </div>
@@ -306,59 +372,55 @@ const AiMessage = ({ content, isThinking, steps, sources }) => {
   );
 };
 
-// The "Thinking" Accordion - Critical for Sovereign Trust
 const ReasoningAccordion = ({ steps, isThinking }) => {
   const [isOpen, setIsOpen] = useState(true);
-  
-  // Auto-collapse when done thinking
-  useEffect(() => {
-    if (!isThinking) setIsOpen(false);
-  }, [isThinking]);
+  useEffect(() => { if (!isThinking) setIsOpen(false); }, [isThinking]);
 
   return (
-    <div className="mb-4">
+    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
+        className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors"
       >
-        {isThinking ? (
-          <span className="flex items-center gap-2 animate-pulse text-[#D97706]">
-            <div className="w-2 h-2 bg-[#D97706] rounded-full" />
-            Analyzing Sovereign Data...
-          </span>
-        ) : (
-          <span className="flex items-center gap-2 text-[#064E3B]">
-            <CheckCircle2 size={14} />
-            Processed Securely
-          </span>
-        )}
-        {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        <div className="flex items-center gap-2 text-sm font-medium">
+          {isThinking ? (
+            <span className="text-[#D97706] flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D97706]"></span>
+              </span>
+              Processing Meeting Data...
+            </span>
+          ) : (
+            <span className="text-[#064E3B] flex items-center gap-2">
+              <CheckCircle2 size={16} /> Analysis Complete
+            </span>
+          )}
+        </div>
+        {isOpen ? <ChevronDown size={16} className="text-slate-400"/> : <ChevronRight size={16} className="text-slate-400"/>}
       </button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
+            initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+            className="border-t border-slate-100"
           >
-            <div className="pl-4 border-l-2 border-slate-100 mt-2 space-y-2">
-              <ReasoningStep 
-                label="Sanitizing Sensitive PII (BVN, Names)" 
-                status={steps.includes('sanitizing') ? 'done' : 'pending'} 
-                active={isThinking && steps.length === 1}
-              />
-              <ReasoningStep 
-                label="Consulting Sovereign Logic (Local Vector DB)" 
-                status={steps.includes('reasoning') ? 'done' : 'pending'} 
-                active={isThinking && steps.length === 2}
-              />
-              <ReasoningStep 
-                label="Rehydrating & Formatting Response" 
-                status={steps.includes('rehydrating') ? 'done' : 'pending'} 
-                active={isThinking && steps.length === 3}
-              />
+            <div className="p-4 space-y-3">
+              {steps.includes('updating') ? (
+                 <>
+                    <Step label="Accessing Credit Risk Project Notebook" active={false} done={true} />
+                    <Step label="Verifying Data Points" active={false} done={true} />
+                    <Step label="Applying Redline Updates" active={false} done={true} />
+                 </>
+              ) : (
+                 <>
+                    <Step label="Ingesting Audio Stream (Secure Tunnel)" active={steps.length >= 1} done={steps.includes('transcribing')} />
+                    <Step label="Sanitizing PII (Voice Biometrics & Names)" active={steps.includes('sanitizing')} done={steps.includes('transcribing')} />
+                    <Step label="Transcribing (Whisper-Sovereign)" active={steps.includes('transcribing')} done={steps.includes('drafting')} />
+                    <Step label="Drafting Minutes (Board Format)" active={steps.includes('drafting')} done={!isThinking} />
+                 </>
+              )}
             </div>
           </motion.div>
         )}
@@ -367,115 +429,145 @@ const ReasoningAccordion = ({ steps, isThinking }) => {
   );
 };
 
-const ReasoningStep = ({ label, status, active }) => (
-  <div className={`flex items-center gap-2 text-xs ${status === 'done' ? 'text-slate-600' : 'text-slate-300'}`}>
-    {status === 'done' ? (
-      <Lock size={12} className={active ? "text-[#D97706] animate-pulse" : "text-[#064E3B]"} />
-    ) : (
-      <div className="w-3 h-3 rounded-full border border-slate-200" />
-    )}
-    <span>{label}</span>
-  </div>
-);
-
-const SourceCard = ({ source, index }) => (
-  <div className="min-w-[160px] max-w-[180px] bg-white border border-slate-200 rounded-lg p-3 hover:bg-slate-50 cursor-pointer transition-colors group shadow-sm">
-    <div className="text-[10px] text-slate-400 font-bold mb-1 uppercase tracking-wider">{source.type}</div>
-    <div className="font-semibold text-xs text-slate-700 line-clamp-2 mb-2 leading-tight group-hover:text-[#064E3B]">{source.name}</div>
-    <div className="flex items-center gap-1">
-      <div className="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-bold">{index}</div>
-      <div className="text-[10px] text-slate-400">{source.date}</div>
+const Step = ({ label, active, done }) => (
+  <div className="flex items-center gap-3 text-sm">
+    <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${done ? 'bg-[#064E3B] border-[#064E3B] text-white' : active ? 'border-[#D97706] text-[#D97706]' : 'border-slate-200 text-slate-300'}`}>
+      {done ? <CheckCircle2 size={12} /> : <div className={`w-2 h-2 rounded-full ${active ? 'bg-[#D97706] animate-pulse' : 'bg-slate-200'}`} />}
     </div>
+    <span className={done ? 'text-slate-700' : active ? 'text-[#D97706] font-medium' : 'text-slate-400'}>{label}</span>
   </div>
 );
 
-const SuggestionPill = ({ icon: Icon, text, onClick }) => (
-  <button 
-    onClick={onClick}
-    className="flex items-center gap-2 bg-white border border-slate-200 hover:border-[#D97706] px-4 py-2 rounded-full text-sm text-slate-600 shadow-sm hover:shadow-md transition-all"
-  >
-    <Icon size={16} className="text-slate-400" />
-    {text}
-  </button>
-);
+const InboxModal = ({ onClose, onSelect }) => {
+  const [playing, setPlaying] = useState(null);
 
-const VaultModal = ({ onClose, onSelect }) => (
-  <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
-    >
-      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-[#F9FAFB]">
-        <div className="flex items-center gap-2 font-bold text-slate-700">
-          <Database size={18} className="text-[#064E3B]" />
-          Internal Secure Drive
-        </div>
-        <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full"><X size={18} /></button>
-      </div>
-      <div className="max-h-[60vh] overflow-y-auto p-2">
-        {SECURE_DRIVE_FILES.map(file => (
-          <div 
-            key={file.id} 
-            onClick={() => onSelect(file)}
-            className="flex items-center gap-3 p-3 hover:bg-[#F3F4F6] rounded-lg cursor-pointer group transition-colors"
-          >
-            <div className="w-10 h-10 rounded bg-[#E5E7EB] flex items-center justify-center group-hover:bg-white group-hover:shadow-sm">
-              <FileText size={20} className="text-slate-500 group-hover:text-[#D97706]" />
-            </div>
-            <div className="flex-1">
-              <div className="text-sm font-medium text-slate-800">{file.name}</div>
-              <div className="text-xs text-slate-400">{file.type} • {file.date}</div>
-            </div>
-            <ArrowUp size={16} className="text-slate-300 group-hover:text-[#064E3B] rotate-45" />
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  </div>
-);
-
-// Helper: Formats the text with bolding and Citation Tooltips
-const FormattedOutput = ({ text }) => {
-  // Simple parser to handle bolding **text** and citations [1]
-  const parts = text.split(/(\*\*.*?\*\*|\[\d+\])/g);
-  
   return (
-    <p>
-      {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={i} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
-        }
-        if (part.match(/^\[\d+\]$/)) {
-          const id = part.slice(1, -1);
-          return (
-            <span key={i} className="relative inline-block group ml-1 align-super text-[10px]">
-              <span className="cursor-pointer text-[#D97706] font-bold hover:underline bg-[#FEF3C7] px-1 rounded">{id}</span>
-              {/* Tooltip */}
-              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-900 text-white text-xs p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed text-left border border-slate-700">
-                <span className="block font-bold text-slate-400 mb-1 text-[10px] uppercase">{CITATIONS[id]?.source}</span>
-                "{CITATIONS[id]?.text}"
-              </span>
-            </span>
-          );
-        }
-        return part;
-      })}
-    </p>
+    <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+      >
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-[#F9FAFB]">
+          <div>
+            <h2 className="font-serif text-xl font-bold text-[#111827]">Unprocessed Recordings</h2>
+            <p className="text-sm text-slate-500">Select a meeting to generate minutes.</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-700"><X size={20} /></button>
+        </div>
+        
+        <div className="overflow-y-auto p-4 space-y-2">
+          {INBOX_RECORDINGS.map(file => (
+            <div 
+              key={file.id} 
+              onClick={() => onSelect(file)}
+              className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 hover:border-[#D97706] hover:bg-[#FFFBEB] cursor-pointer group transition-all"
+            >
+              <button 
+                onClick={(e) => { e.stopPropagation(); setPlaying(playing === file.id ? null : file.id); }}
+                className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-[#064E3B] hover:text-white transition-colors"
+              >
+                {playing === file.id ? <Pause size={18} /> : <Play size={18} className="ml-1" />}
+              </button>
+              
+              <div className="flex-1">
+                <div className="flex justify-between mb-1">
+                  <span className="font-semibold text-slate-800">{file.name}</span>
+                  <span className="text-xs font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded">{file.duration}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span>{file.date}</span>
+                  <span>•</span>
+                  <span>{file.type}</span>
+                  {playing === file.id && <span className="text-[#D97706] animate-pulse font-bold">• Playing Preview...</span>}
+                </div>
+              </div>
+              
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="bg-[#064E3B] text-white px-4 py-2 rounded-lg text-xs font-bold">Select</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
-// --- Mock Content for the Credit Memo ---
-const MOCK_CREDIT_MEMO = `**Executive Summary**
-Zenith Construction Ltd has requested a **N250,000,000 Term Loan** for heavy equipment acquisition. The company demonstrates strong repayment capacity with a projected DSCR of **1.45x** [2], comfortably exceeding our internal policy threshold of 1.25x.
+// Formatter for bolding and structure + Red Dashed Highlights
+const FormattedOutput = ({ text }) => {
+  // Regex to split by **bold** or __highlight__
+  const parts = text.split(/(\*\*.*?\*\*|__.*?__)/g);
+  return (
+    <div className="whitespace-pre-wrap leading-relaxed">
+      {parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <span key={i} className="font-bold text-[#111827] block mt-4 mb-2 text-lg font-serif">{part.slice(2, -2)}</span>;
+        }
+        if (part.startsWith('__') && part.endsWith('__')) {
+          // The requested visual style: red dashed underline
+          return (
+            <span key={i} className="font-bold text-[#111827] border-b-2 border-dashed border-red-500 bg-red-50 px-1 rounded-sm">
+                {part.slice(2, -2)}
+            </span>
+          );
+        }
+        return <span key={i} className="text-slate-600">{part}</span>;
+      })}
+    </div>
+  );
+};
 
-**Regulatory Compliance**
-The request complies with all CBN Prudential Guidelines. The exposure represents 12% of the bank's unimpaired shareholders' funds, which is within the **Single Obligor Limit of 20%** [1]. The collateral offered (Agbara Warehouse) is unencumbered and registered [3].
+// --- Mock Content: Board Minutes ---
+const MOCK_MEETING_MINUTES = `**MEETING MINUTES: BOARD STRATEGY COMMITTEE (Q1 2026)**
 
-**Risk Factors**
-1. **FX Exposure:** The borrower relies on imported raw materials. A 20% devaluation could impact margins.
-2. **Key Person Risk:** Operations are heavily centralized around the Managing Director.
+**Date:** January 22, 2026  
+**Time:** 10:00 AM - 11:45 AM  
+**Location:** Lagos HQ (Boardroom A) & MS Teams  
 
-**Recommendation**
-**APPROVE** subject to the execution of an FX Forward Contract for Q3 2026 imports.`;
+**ATTENDEES:** • Chairman (Presiding)  
+• MD/CEO  
+• Executive Director, Risk  
+• Company Secretary (Scribe)
+
+**1. AGENDA ITEM: Q4 PERFORMANCE REVIEW**
+The MD presented the Q4 financial results. Key highlight: **Revenue grew by 15% YoY**, driven primarily by the Energy sector desk. However, OPEX increased by 8% due to rising diesel costs.
+
+**2. DECISION: FX HEDGING STRATEGY**
+The Board deliberated on the exposure to foreign currency liabilities.  
+**RESOLVED:** The Treasury unit is mandated to execute a **Forward Contract** for 50% of the Q3 import obligations immediately to mitigate devaluation risk.  
+**ACTION:** CFO to report on execution by Friday, Jan 26.
+
+**3. DISCUSSION: DIGITAL TRANSFORMATION (PROJECT NAIRAFLOW)**
+The CTO presented the pilot results for the Sovereign AI implementation.  
+**OBSERVATION:** The pilot in Credit Risk demonstrated a **60% reduction in processing time**.  
+**DECISION:** The Board **APPROVED** the budget for full hardware acquisition (Sovereign Node) to expand the project to Legal and HR.
+
+**4. ADJOURNMENT**
+Meeting adjourned at 11:45 AM. Next meeting scheduled for April 15, 2026.`;
+
+const MOCK_MEETING_MINUTES_UPDATED = `**MEETING MINUTES: BOARD STRATEGY COMMITTEE (Q1 2026)**
+
+**Date:** January 22, 2026  
+**Time:** 10:00 AM - 11:45 AM  
+**Location:** Lagos HQ (Boardroom A) & MS Teams  
+
+**ATTENDEES:** • Chairman (Presiding)  
+• MD/CEO  
+• Executive Director, Risk  
+• Company Secretary (Scribe)
+
+**1. AGENDA ITEM: Q4 PERFORMANCE REVIEW**
+The MD presented the Q4 financial results. Key highlight: **Revenue grew by 15% YoY**, driven primarily by the Energy sector desk. However, OPEX increased by 8% due to rising diesel costs.
+
+**2. DECISION: FX HEDGING STRATEGY**
+The Board deliberated on the exposure to foreign currency liabilities.  
+**RESOLVED:** The Treasury unit is mandated to execute a **Forward Contract** for 50% of the Q3 import obligations immediately to mitigate devaluation risk.  
+**ACTION:** CFO to report on execution by Friday, Jan 26.
+
+**3. DISCUSSION: DIGITAL TRANSFORMATION (PROJECT NAIRAFLOW)**
+The CTO presented the pilot results for the Sovereign AI implementation.  
+**OBSERVATION:** The pilot in Credit Risk demonstrated a __63.5% reduction in processing time__.  
+**DECISION:** The Board **APPROVED** the budget for full hardware acquisition (Sovereign Node) to expand the project to Legal and HR.
+
+**4. ADJOURNMENT**
+Meeting adjourned at 11:45 AM. Next meeting scheduled for April 15, 2026.`;
