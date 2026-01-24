@@ -86,15 +86,19 @@ export default function SecretariatComet() {
     const finalQuery = query || suggestedPrompt;
     if (!finalQuery.trim() && selectedFiles.length === 0) return;
 
+    // Capture files at moment of send
+    const currentFiles = [...selectedFiles];
+
     const newQuery = { 
       type: 'user', 
       content: finalQuery, 
-      files: [...selectedFiles] 
+      files: currentFiles 
     };
     
     setThread(prev => [...prev, newQuery]);
     setQuery('');
     setSuggestedPrompt(''); // Clear suggestion
+    setSelectedFiles([]); // Clear input
     setAppState('processing');
 
     // Add placeholder AI message
@@ -118,7 +122,10 @@ export default function SecretariatComet() {
         updateLastMessage({ 
             isThinking: false,
             content: MOCK_MEETING_MINUTES_UPDATED,
-            sources: selectedFiles.length > 0 ? selectedFiles : [{ name: 'Project_NairaFlow_Notebook.pdf', type: 'Vault Doc', date: 'Jan 23, 2026' }]
+            sources: [
+                INBOX_RECORDINGS[0], // Original context
+                { name: 'Project_Status.pdf', type: 'Vault Doc', date: 'Jan 23, 2026' }
+            ]
         });
     } else {
         // Standard initial processing
@@ -132,7 +139,7 @@ export default function SecretariatComet() {
         updateLastMessage({ 
             isThinking: false,
             content: MOCK_MEETING_MINUTES,
-            sources: selectedFiles
+            sources: currentFiles
         });
     }
     
@@ -202,7 +209,7 @@ export default function SecretariatComet() {
           {/* Welcome / Empty State */}
           {thread.length === 0 && (
             <div className="mt-16 text-center animate-fade-in-up">
-              <h2 className="font-serif text-4xl text-[#111827] mb-3">Governance Intelligence</h2>
+              <h2 className="font-serif text-4xl text-[#111827] mb-3">Meet Intelligence</h2>
               <p className="text-slate-500 text-lg mb-12">Draft minutes, analyze compliance, and query records.</p>
               
               {/* Inbox Notification Card */}
@@ -348,7 +355,11 @@ const AiResponse = ({ content, isThinking, steps, sources }) => {
           {sources && sources.map((source, i) => (
             <div key={i} className="flex-shrink-0 w-48 bg-white border border-slate-200 rounded-lg p-3 hover:border-[#D97706] transition-colors cursor-pointer group">
               <div className="flex justify-between items-start mb-2">
-                <FileAudio size={16} className="text-slate-400 group-hover:text-[#D97706]" />
+                {source.name.endsWith('mp3') ? (
+                  <FileAudio size={16} className="text-slate-400 group-hover:text-[#D97706]" />
+                ) : (
+                  <FileText size={16} className="text-slate-400 group-hover:text-[#D97706]" />
+                )}
                 <span className="text-[10px] text-slate-400 font-mono">{i + 1}</span>
               </div>
               <div className="text-xs font-medium text-slate-800 line-clamp-2 leading-snug mb-1">
