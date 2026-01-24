@@ -37,7 +37,9 @@ import {
   Archive,
   ArrowUpRight,
   ArrowDownRight,
-  Activity
+  Activity,
+  MessageSquare,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -229,6 +231,10 @@ const ExecutiveView = () => {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [activeArtifactId, setActiveArtifactId] = useState(null);
   const [appState, setAppState] = useState('dashboard'); // dashboard | analyzing
+  
+  // State for Invite Modal Logic
+  const [selectedInviteUser, setSelectedInviteUser] = useState(null);
+  const [inviteNote, setInviteNote] = useState('');
 
   const messagesEndRef = useRef(null);
   
@@ -254,12 +260,19 @@ const ExecutiveView = () => {
       type: 'insight',
       question: userQuery,
       title: 'Energy Desk Variance Analysis (Q1)',
-      summary: 'OPEX variance driven by diesel procurement costs (+12% YoY) and unplanned maintenance at the Port Harcourt facility.',
+      summary: 'Analysis reveals a significant OPEX spike in Q3 driven primarily by a 40% increase in diesel procurement costs due to subsidy removal, alongside unplanned maintenance at the Port Harcourt facility. Recommendation: Accelerate solar hybrid deployment.',
       chartType: 'bar', // Mock chart type
       status: 'active', // active | frozen
       collaborators: [],
       auditTrail: [
         { user: 'CEO', action: 'Created Inquiry', date: 'Jan 24, 10:42 AM' }
+      ],
+      // Dynamic Data for the Chart
+      chartData: [
+        { label: 'Q1', value: 45 },
+        { label: 'Q2', value: 48 },
+        { label: 'Q3', value: 85, highlight: true, annotation: 'Diesel Cost Spike (+40%)' },
+        { label: 'Q4', value: 55 }
       ]
     };
 
@@ -269,18 +282,26 @@ const ExecutiveView = () => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
-  const handleInvite = (user) => {
+  const handleSendInvite = () => {
+    if (!selectedInviteUser) return;
+    
+    const userWithNote = { ...selectedInviteUser, note: inviteNote };
+
     setInsights(prev => prev.map(insight => {
       if (insight.id === activeArtifactId) {
         return {
           ...insight,
-          collaborators: [...insight.collaborators, user],
-          auditTrail: [...insight.auditTrail, { user: 'CEO', action: `Invited ${user.name}`, date: 'Jan 24, 10:45 AM' }]
+          collaborators: [...insight.collaborators, userWithNote],
+          auditTrail: [...insight.auditTrail, { user: 'CEO', action: `Invited ${selectedInviteUser.name}`, date: 'Jan 24, 10:45 AM' }]
         };
       }
       return insight;
     }));
+    
+    // Reset Modal State
     setIsInviteOpen(false);
+    setSelectedInviteUser(null);
+    setInviteNote('');
   };
 
   const handleFreeze = (id) => {
@@ -475,7 +496,7 @@ const ExecutiveView = () => {
         </div>
       </div>
 
-      {/* Invite Modal */}
+      {/* Invite Modal (Multi-Step) */}
       <AnimatePresence>
         {isInviteOpen && (
           <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -484,20 +505,60 @@ const ExecutiveView = () => {
               className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
             >
               <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-[#F9FAFB]">
-                <h3 className="font-bold text-slate-700">Invite to Artifact</h3>
-                <button onClick={() => setIsInviteOpen(false)}><X size={18} className="text-slate-400" /></button>
+                <div className="flex items-center gap-2">
+                  {selectedInviteUser && (
+                    <button onClick={() => setSelectedInviteUser(null)} className="mr-1 text-slate-400 hover:text-slate-600"><ArrowLeft size={18} /></button>
+                  )}
+                  <h3 className="font-bold text-slate-700">{selectedInviteUser ? 'Add Context' : 'Invite to Artifact'}</h3>
+                </div>
+                <button onClick={() => { setIsInviteOpen(false); setSelectedInviteUser(null); }}><X size={18} className="text-slate-400" /></button>
               </div>
+              
               <div className="p-2">
-                {ORG_USERS.map(user => (
-                  <div key={user.id} onClick={() => handleInvite(user)} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg cursor-pointer group">
-                    <div className="w-10 h-10 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-xs font-bold">{user.avatar}</div>
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-slate-800">{user.name}</div>
-                      <div className="text-xs text-slate-500">{user.role}</div>
-                    </div>
-                    <UserPlus size={16} className="text-slate-300 group-hover:text-[#064E3B]" />
+                {!selectedInviteUser ? (
+                  // Step 1: Select User
+                  <div>
+                    {ORG_USERS.map(user => (
+                      <div key={user.id} onClick={() => setSelectedInviteUser(user)} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg cursor-pointer group">
+                        <div className="w-10 h-10 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-xs font-bold">{user.avatar}</div>
+                        <div className="flex-1">
+                          <div className="text-sm font-bold text-slate-800">{user.name}</div>
+                          <div className="text-xs text-slate-500">{user.role}</div>
+                        </div>
+                        <ChevronRight size={16} className="text-slate-300 group-hover:text-[#064E3B]" />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  // Step 2: Add Note & Send
+                  <div className="p-2 space-y-4">
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div className="w-8 h-8 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-[10px] font-bold">{selectedInviteUser.avatar}</div>
+                      <div>
+                        <div className="text-sm font-bold text-slate-800">{selectedInviteUser.name}</div>
+                        <div className="text-xs text-slate-500">{selectedInviteUser.role}</div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Context Note (Optional)</label>
+                      <textarea 
+                        value={inviteNote}
+                        onChange={(e) => setInviteNote(e.target.value)}
+                        placeholder="e.g., Please review the variance in Q3..."
+                        className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:border-[#064E3B] outline-none min-h-[100px]"
+                        autoFocus
+                      />
+                    </div>
+
+                    <button 
+                      onClick={handleSendInvite}
+                      className="w-full bg-[#064E3B] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#053d2e] flex items-center justify-center gap-2"
+                    >
+                      <UserPlus size={16} /> Send Invitation
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -558,14 +619,24 @@ const InsightCard = ({ data, onInvite, onFreeze }) => {
           <p>{data.summary}</p>
         </div>
 
-        {/* Collaborators Row */}
+        {/* Collaborators Row - UPDATED TO SHOW NOTES */}
         {data.collaborators.length > 0 && (
-          <div className="mt-6 flex items-center gap-3 pt-4 border-t border-slate-100">
-            <span className="text-xs font-bold text-slate-400 uppercase">Shared With:</span>
-            <div className="flex -space-x-2">
+          <div className="mt-6 border-t border-slate-100 pt-4">
+            <span className="text-xs font-bold text-slate-400 uppercase mb-3 block">Shared With:</span>
+            <div className="space-y-3">
               {data.collaborators.map((c, i) => (
-                <div key={i} className="w-6 h-6 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white" title={c.name}>
-                  {c.avatar}
+                <div key={i} className="flex items-start gap-3">
+                   <div className="w-8 h-8 rounded-full bg-[#064E3B] text-white flex items-center justify-center text-[10px] font-bold border-2 border-white shadow-sm flex-shrink-0" title={c.name}>
+                      {c.avatar}
+                    </div>
+                    <div className="text-xs">
+                      <div className="font-bold text-slate-700">{c.name}</div>
+                      {c.note && (
+                        <div className="bg-slate-50 border border-slate-200 rounded-tr-xl rounded-br-xl rounded-bl-xl p-2 mt-1 text-slate-600 italic">
+                          "{c.note}"
+                        </div>
+                      )}
+                    </div>
                 </div>
               ))}
             </div>
