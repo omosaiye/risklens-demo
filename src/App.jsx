@@ -185,7 +185,7 @@ const App = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#191A1A] text-[#E8E8E8] font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#FFFFFF] text-[#E8E8E8] font-sans overflow-hidden">
       {/* Sidebar - Scenario Navigator */}
       <aside className={`w-72 border-r border-[#2D2E2E] flex flex-col shrink-0 transition-all ${viewMode === 'collab' ? 'w-16' : 'w-72'} hidden lg:flex bg-[#161717]`}>
         <div className="p-6">
@@ -239,7 +239,7 @@ const App = () => {
 
       {/* Main Container */}
       <main className="flex-1 flex flex-col relative min-w-0">
-        <header className="h-16 border-b border-[#2D2E2E] flex items-center justify-between px-6 bg-[#191A1A]/95 backdrop-blur-md sticky top-0 z-50">
+        <header className="h-16 border-b border-[#2D2E2E] flex items-center justify-between px-6 bg-[#FFFFFF]/95 backdrop-blur-md sticky top-0 z-50">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full shrink-0">
               <Lock size={12} className="text-indigo-400" />
@@ -382,7 +382,7 @@ const App = () => {
               </div>
             </div>
 
-            <div className="p-6 bg-gradient-to-t from-[#191A1A] via-[#191A1A] to-transparent shrink-0">
+            <div className="p-6 bg-gradient-to-t from-[#FFFFFF] via-[#FFFFFF] to-transparent shrink-0">
               <div className={`mx-auto ${viewMode === 'collab' ? 'max-w-full' : 'max-w-3xl'}`}>
                 <div className={`relative transition-all duration-300 rounded-2xl bg-[#202222] border-2 shadow-2xl ${isFocused ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-[#2D2E2E]'}`}>
                   <textarea 
@@ -410,7 +410,7 @@ const App = () => {
           </div>
 
           {viewMode === 'collab' && collabDoc && (
-            <div className="flex-1 flex flex-col bg-[#191A1A] animate-in slide-in-from-right duration-500 border-l border-[#2D2E2E]">
+            <div className="flex-1 flex flex-col bg-[#FFFFFF] animate-in slide-in-from-right duration-500 border-l border-[#2D2E2E]">
               <div className="flex items-center justify-between p-6 bg-[#161717] border-b border-[#2D2E2E]">
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 shadow-inner">
@@ -489,7 +489,7 @@ const App = () => {
       </main>
 
       {viewMode === 'chat' && isRightPanelOpen && (
-        <aside className="w-80 border-l border-[#2D2E2E] bg-[#191A1A] flex flex-col shrink-0 animate-in slide-in-from-right duration-300">
+        <aside className="w-80 border-l border-[#2D2E2E] bg-[#FFFFFF] flex flex-col shrink-0 animate-in slide-in-from-right duration-300">
           <div className="p-6 text-left">
             <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2 mb-6">
               <Database size={14} className="text-indigo-500" /> Internal Data Vault
